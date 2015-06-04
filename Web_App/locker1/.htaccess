@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteBase /locker/
+RewriteCond $1 !^(index\.php|css|fonts|images|js)
+RewriteRule ^(.*)$ index.php/$1 [L]
