@@ -4,7 +4,16 @@
 	  					<div class="panel-heading">
 	    					<h3 class="panel-title"> <?php echo $hearder;?> </h3>
 	  					</div>
-	  					<div class="panel-body"></br>
+	  					<div class="panel-body">
+	  					<div style="text-align:right">
+							ส่งออก<select id='export'  style="height: 30px;width: 100px;margin-right:3px;margin-left:3px">
+									<option>PDF</option>
+									<option>Excel</option>	
+								</select>
+								<button type="button" class="btn btn-success btn-sm btn-export" style="float:right">
+								<span class="glyphicon glyphicon glyphicon-eject"></span> ส่งออก 
+							</button> 
+						</div>
 	  						<div class="table table-responsive">
 									<label for="sel2">เลือกการสรุป :</label>
 								    <select  class="form-control" id="sel" size="3">
@@ -25,6 +34,13 @@
 			<!--  end content -->
 			</div>
 		</div>
+		<form id="fexport" method="post" action="<?php echo base_url();?>report_controller/list_cometotal">
+			<input type="hidden" name="export_st" value="">
+			<input type="hidden" name="export_year" value="">
+			<input type="hidden" name="export_term" value="">
+			<input type="hidden" name="export_page" value="">
+			<input type="hidden" name="export" value="">
+		</form>
 <script type="text/javascript">
 	$(document).ready(function(){
 		var year_max = 0;
@@ -62,6 +78,39 @@
 			error: function(jqXHR) {
 				alert(jqXHR.status);
 			}
+		});
+
+		$(".btn-export").click(function(){
+
+			if($("#sel").val() == "all"){
+				$("input[name='export_st']").val("all");
+			}else if($("#sel").val() == "year"){
+				$("input[name='export_st']").val("year");
+				$("input[name='export_year']").val($("#sel_year :selected").val());
+			}else if($("#sel").val() == "term"){
+				if( $("#term1").css("color") == "rgb(255, 0, 0)" ){
+					$("input[name='export_st']").val("term");
+					$("input[name='export_year']").val($("#sel_year_term :selected").val());
+					$("input[name='export_term']").val("1");
+					$("input[name='export_come']").val("come");
+				}
+
+				if( $("#term2").css("color") == "rgb(255, 0, 0)" ){
+					$("input[name='export_st']").val("term");
+					$("input[name='export_year']").val($("#sel_year_term :selected").val());
+					$("input[name='export_term']").val("2");
+					$("input[name='export_come']").val("come");
+				}
+
+				if( $("#term3").css("color") == "rgb(255, 0, 0)" ){
+					$("input[name='export_st']").val("term");
+					$("input[name='export_year']").val($("#sel_year_term :selected").val());
+					$("input[name='export_term']").val("3");
+					$("input[name='export_come']").val("come");
+				}
+			}
+			$("input[name='export']").val($("#export").val());
+			$("#fexport").submit();
 		});
 
 		$("#sel").change(function(){

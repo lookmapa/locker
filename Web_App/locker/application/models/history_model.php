@@ -21,6 +21,11 @@ class History_model extends CI_Model {
         return $query;
     }
 
+    function select_where($sql){
+        $query = $this->db->query($sql);
+        return $query;   
+    }
+
     function sort($where){
         $this->db->select('No_account,Name,SName');
         $this->db->where($where);

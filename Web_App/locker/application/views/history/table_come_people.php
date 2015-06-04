@@ -4,7 +4,16 @@
 	  					<div class="panel-heading">
 	    					<h3 class="panel-title"> <?php echo $hearder;?> </h3>
 	  					</div>
-	  					<div class="panel-body"></br>
+	  					<div class="panel-body">
+	  						<div style="text-align:right">
+								ส่งออก<select id='export'  style="height: 30px;width: 100px;margin-right:3px;margin-left:3px">
+										<option>PDF</option>
+										<option>Excel</option>	
+									</select>
+									<button type="button" class="btn btn-success btn-sm btn-export" style="float:right" disabled>
+									<span class="glyphicon glyphicon glyphicon-eject"></span> ส่งออก 
+								</button> 
+							</div>
 	  						<div class="row">
 	  						<?php if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" ){?>
 								<div class="col-md-3">
@@ -53,12 +62,27 @@
 			<!--  end content -->
 			</div>
 		</div>
+		<form id="fexport" method="post" action="<?php echo base_url();?>report_controller/list_comepeople">
+			<input type="hidden" name="export_user" value="">
+			<input type="hidden" name="export_year" value="">
+			<input type="hidden" name="export_term" value="">
+			<input type="hidden" name="export" value="">
+		</form>
 <script type="text/javascript">
 	$(document).ready(function(){
 
 		var user = "";
+		$(".btn-export").click(function(){
+			//$(".loader").attr("style", "visibility: visible");
+			$("input[name='export_user']").val(user);
+			$("input[name='export_year']").val($("#sel_year :selected").val());
+			$("input[name='export_term']").val($("#sel_term :selected").val());
+			$("input[name='export']").val($("#export").val());
+			$("#fexport").submit();
+		});
 
 		$(".btn-search").click(function(){
+			$(".btn-export").prop('disabled',true);
 			$("#content").html("");
 			if( $("input[name='privileges']").val() == "ผู้ดูแลระบบ" ){
 				user = $("#sel_user :selected").val();
@@ -87,6 +111,7 @@
 						alert("กรุณาไปกำหนดวันที่ เริ่ม - จบ ตามที่กำหนดให้เรียบร้อย \n"+str[1]);
 						window.location.href = $("input[name='url']").val()+"config_controller/view_show";
 					}else{
+						$(".btn-export").prop('disabled',false);
 						$("#content").html(str[1]);
 					} 
 

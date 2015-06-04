@@ -14,7 +14,7 @@
                                 <tbody>
                                     <tr>
                                         <td> 
-                                            รหัสบัตร RFID &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="txt-rfid" size="17px" >&nbsp;&nbsp; 
+                                            รหัสบัตร RFID &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="txt-rfid" size="17px" disabled>&nbsp;&nbsp; 
                                             <button class="btn btn-info btn-sm btn-read" ><span class="glyphicon glyphicon-time" style="margin-right:5px;width:20px"></span>อ่าน</button>
                                             &nbsp;&nbsp;<label id="lb1" name="lb"></label>&nbsp;&nbsp; <label><font face="Arial Black" color="red" id="clock"></font></label> 
                                         </td>
@@ -186,6 +186,7 @@
                     },
                     success : function(rs){
                         if( rs.length == 4){
+                            alert("บันทึกข้อมูลเรียบร้อย");
                             window.location.href = $("input[name='url']").val()+"account_controller/view_show";
                         }else if(parseInt(rs) == 1){
                             $("#lb1").html("X").css({"color": "red", "font-size": "13px"});

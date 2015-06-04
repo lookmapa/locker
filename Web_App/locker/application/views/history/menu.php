@@ -41,6 +41,11 @@
 	  										<a id="report_overtime_total" style="cursor:pointer"> รายงานสรุปการใช้ห้องนอกเวลา </a>
 	  									</td>
 	  								</tr>
+	  								<tr>
+	  									<td>
+	  										<a id="report_replace" style="cursor:pointer"> รายงานการเปิดห้องแทน </a>
+	  									</td>
+	  								</tr>
 	  								<?php }?>
 	  							</tbody>
 	    					</table>
@@ -76,6 +81,11 @@
 
 		$("a#report_overtime_total").click(function(){
 			$("input[name='st']").val("report_overtime_total");
+			$("form#history").submit();
+		});
+
+		$("a#report_replace").click(function(){
+			$("input[name='st']").val("report_replace");
 			$("form#history").submit();
 		});
 	});

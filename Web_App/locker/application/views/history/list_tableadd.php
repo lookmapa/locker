@@ -3,7 +3,7 @@
     <thead>
         <tr class="info">
             <th> ลำดับ </th>
-            <th> ชื่อ </th>
+            <th> ชื่อ - นามสกุล </th>
             <th> ปีการศึกษา </th>
             <th> วันที่ </th>
             <th> เวลาเริ่ม </th>
@@ -166,6 +166,7 @@
                 url: $("input[name='url']").val()+"history_controller/edit",
                 type: "post", 
                 data: {
+                    user: $("#sel_user :selected").val(),
                     no: no,
                     status : status,
                     detail: detail

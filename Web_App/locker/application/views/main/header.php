@@ -7,6 +7,7 @@
         <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>/css/bootstrap.css">
         <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>/css/jquery_ui.css">
         <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>/css/jquery-ui-timepicker-addon.css">
+        <script type="text/javascript" src='<?php echo base_url();?>/js/spin-min.js'></script>
         <script type="text/javascript" src='<?php echo base_url();?>/js/jquery.js'></script>
         <script type="text/javascript" src='<?php echo base_url();?>/js/jquery_ui.js'></script>
         <script type="text/javascript" src='<?php echo base_url();?>/js/bootstrap.js'></script>

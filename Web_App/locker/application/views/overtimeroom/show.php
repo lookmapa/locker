@@ -7,7 +7,7 @@
         	    <div class="panel-body">
                     <div calss="row">
                         <div class="table table-responsive">
-                            <table class="table  table-bordered table-striped" id="overtime_room" style="size:2px;">
+                            <table class="table  table-bordered " id="overtime_room" style="size:2px;">
                                 <thead>
                                     <tr class="info" align="center">
                                         <th> ลำดับ </th>
@@ -22,23 +22,142 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                        $i = 1;
-                                        if( count($result) > 0){
-                                            foreach ($result as $row ): 
+                                        $df_user = 0;
+                                        $df_date = 0;
+                                        $df_timeb = 0;
+                                        $df_timee = 0;
+                                        $df_room = 0;
+                                        $df_detail = 0;
+                                        $count_user = 1;
+                                        $count_date = 1;
+                                        $count_timeb = 1;
+                                        $count_timee = 1;
+                                        $count_room = 1;
+                                        $count_detail = 1;
+                                        $b_user = "1/";
+                                        $b_date = "1/";
+                                        $b_timeb = "1/";
+                                        $b_timee = "1/";
+                                        $b_room = "1/";
+                                        $b_detail = "1/";
+                                        $n_user = "";
+                                        $n_date = "";
+                                        $n_timeb = "";
+                                        $n_timee = "";
+                                        $n_room = "";
+                                        $n_detail = "";
+                                        $count = 1;
+
+                                        if (count($result) > 0){
+                                            foreach ($result as $row):
+                                                if($count == 1){
+                                                    $df_user = $row->Name."  ".$row->SName;
+                                                    $df_date = $row->Date;
+                                                    $df_timeb = $row->Time_Begin;
+                                                    $df_timee = $row->Time_End;
+                                                    $df_room = $row->Room;
+                                                    $df_detail = $row->Detail;
+                                                }else{
+                                                    if($df_user == $row->Name."  ".$row->SName){
+                                                        $count_user += 1;
+                                                    }else{
+                                                        $b_user .= $count."/";
+                                                        $n_user .= $count_user."/";
+                                                        $df_user = $row->Name."  ".$row->SName;
+                                                        $count_user = 1;
+                                                    }
+
+                                                    if($df_date == $row->Date){
+                                                        $count_date += 1;
+                                                    }else{
+                                                        $b_date .= $count."/";
+                                                        $n_date .= $count_date."/";
+                                                        $df_date = $row->Date;
+                                                        $count_date = 1;
+                                                    }
+
+                                                    if( $df_timeb == $row->Time_Begin){
+                                                        $count_timeb += 1;
+                                                    }else{
+                                                        $b_timeb .= $count."/";
+                                                        $n_timeb .= $count_timeb."/";
+                                                        $df_timeb = $row->Time_Begin;
+                                                        $count_timeb = 1;
+                                                    }
+
+                                                    if( $df_timee == $row->Time_End){
+                                                        $count_timee += 1;
+                                                    }else{
+                                                        $b_timee .= $count."/";
+                                                        $n_timee .= $count_timee."/";
+                                                        $df_timee = $row->Time_End;
+                                                        $count_timee = 1;
+                                                    }
+
+                                                    if( $df_room == $row->Room){
+                                                        $count_room += 1;
+                                                    }else{
+                                                        $b_room .= $count."/";
+                                                        $n_room .= $count_room."/";
+                                                        $df_room = $row->Room;
+                                                        $count_room = 1;
+                                                    }
+
+                                                    if( $df_detail == $row->Detail){
+                                                        $count_detail += 1;
+                                                    }else{
+                                                        $b_detail .= $count."/";
+                                                        $n_detail .= $count_detail."/";
+                                                        $df_detail = $row->Detail;
+                                                        $count_detail = 1;
+                                                    }
+                                                }
+                                                if(count($result) == $count){
+                                                    $n_user .= $count_user;
+                                                    $n_date .= $count_date;
+                                                    $n_timeb .= $count_timeb;
+                                                    $n_timee .= $count_timee;
+                                                    $n_room .= $count_room;
+                                                    $n_detail .= $count_detail;
+                                                }
+                                                $count += 1;
+                                            endforeach;
+
+                                            $count = 1;
+                                            $c_user = 0;
+                                            $c_date = 0;
+                                            $c_timeb = 0;
+                                            $c_timee = 0;
+                                            $c_room = 0;
+                                            $c_detail = 0;
+                                            $arr_buser = explode("/", $b_user);
+                                            $arr_nuser = explode("/", $n_user);
+                                            $arr_bdate = explode("/", $b_date);
+                                            $arr_ndate = explode("/", $n_date);
+                                            $arr_btimeb = explode("/", $b_timeb);
+                                            $arr_ntimeb = explode("/", $n_timeb);
+                                            $arr_btimee = explode("/", $b_timee);
+                                            $arr_ntimee = explode("/", $n_timee);
+                                            $arr_broom = explode("/", $b_room);
+                                            $arr_nroom = explode("/", $n_room);
+                                            $arr_bdetail = explode("/", $b_detail);
+                                            $arr_ndetail = explode("/", $n_detail);
+
+                                            foreach ($result as $row):
                                                 echo "<tr>";
-                                                echo "<td>".$i."</td>";
-                                                echo "<td>".$row->Name."  ".$row->SName."</td>";
-                                                echo "<td>".$row->Date."</td>";
-                                                echo "<td>".$row->Time_Begin."</td>";
-                                                echo "<td>".$row->Time_End."</td>";
-                                                echo "<td>".$row->Room."</td>";
-                                                echo "<td>".$row->Detail."</td>";
+                                                echo "<td>".$count."</td>";
+                                                if( $count == $arr_buser[$c_user] ){ echo "<td rowspan='".$arr_nuser[$c_user]."'>".$row->Name." ".$row->SName."</td>"; $c_user += 1; }
+                                                if( $count == $arr_bdate[$c_date] ){ echo "<td rowspan='".$arr_ndate[$c_date]."'>".$row->Date."</td>"; $c_date += 1;}
+                                                if( $count == $arr_btimeb[$c_timeb] ){ echo "<td rowspan='".$arr_ntimeb[$c_timeb]."'>".$row->Time_Begin."</td>"; $c_timeb += 1;}
+                                                if( $count == $arr_btimee[$c_timee] ){ echo "<td rowspan='".$arr_ntimee[$c_timee]."'>".$row->Time_End."</td>"; $c_timee += 1;}
+                                                if( $count == $arr_broom[$c_room] ){ echo "<td rowspan='".$arr_nroom[$c_room]."'>".$row->Room."</td>"; $c_room += 1;}
+                                                if( $count == $arr_bdetail[$c_detail] ){ echo "<td rowspan='".$arr_ndetail[$c_detail]."'>".$row->Detail."</td>"; $c_detail += 1;}
                                                 echo "<td align='center'>";
                                                 echo "<a id='edit' name=".base64_encode($row->otr_no)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
                                                 echo "<a id='del' name=".$row->otr_no."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash'></span></a>";
                                                 echo "</td>";
                                                 echo "</tr>";
-                                                $i += 1;
+                                                $count += 1;
                                             endforeach;
                                         }else{
                                             echo "<tr><td colspan='8' style='text-align: center' > หาข้อมูลไม่พบ </td></tr>";
