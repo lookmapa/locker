@@ -30,7 +30,7 @@
 	  										<a id="report_come_people" style="cursor:pointer"> รายงานสรุปการเข้าสอน <?php if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" ){?> (บุคคล) <?php }?> </a>
 	  									</td>
 	  								</tr>
-	  								<?php if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" ){?>
+	  								<?php if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" || $this->session->userdata("sess_type") == "หัวหน้าสาขา/ประธานหลักสูตร"){?>
 	  								<tr>
 	  									<td>
 	  										<a id="report_come_total" style="cursor:pointer"> รายงานสรุปการเข้าสอน (ทั้งหมด) </a>

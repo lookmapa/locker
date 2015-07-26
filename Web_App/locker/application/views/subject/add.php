@@ -21,8 +21,8 @@
 									</thead>
 			  						<tbody>
 			  							<tr>
-			  								<td><span class="glyphicon glyphicon-trash del" style="cursor:pointer;"></span></td>
-			  								<td><input type="text" id="txt-id" name="txt-id1" mytag="1" style='padding:0px 7px 0px 7px' onclick="check();"></td>
+			  								<td><span class="glyphicon glyphicon-trash del" style="cursor:pointer;" data-toggle="del" title="ลบ"></span></td>
+			  								<td><input type="text" id="txt-id" name="txt-id1" mytag="1" style='padding:0px 7px 0px 7px' onclick="check();" pattern="[1-3]*"></td>
 			  								<td><input type="text" id="txt-name" name="txt-name1" style='padding:0px 7px 0px 7px'></td>
 			  								<td><input type="text" id="txt-hours" name='txt-hours' style='padding:0px 7px 0px 7px' onclick='check();'></td>
 			  								<td><input type="checkbox" id="chk" class="chk"></td>
@@ -30,6 +30,7 @@
 			  							</tr>			  							
 			  						</tbody>
 		    					</table>
+		    					<div class="alert-warning"></div>
 		    					<input type="hidden" name="url" value="<?php echo base_url();?>">
 							</div>
 			    					<button type="button" class="btn btn-warning btn-save btn-sm"  >
@@ -51,13 +52,15 @@
    		var index=1;
 		var count=1;
 
+		$('[data-toggle="del"]').tooltip();
+
 		$(".btn-add").click(function(){
 			index = index+1;count = count+1;
 			$("#show").html(count);
 			$(".table-add tbody").parent()
 				.append(
 					"<tr>"+
-						"<td><span class='glyphicon glyphicon-trash del' style='cursor:pointer;'></span></td>"+
+						"<td><span class='glyphicon glyphicon-trash del' style='cursor:pointer;' data-toggle='del' title='ลบ'></span></td>"+
 						"<td><input type='text' id='txt-id' name='txt-id"+index+"' mytag='"+index+"' style='padding:0px 7px 0px 7px' onclick='check();'></td>"+
 						"<td><input type='text' id='txt-name' name='txt-name"+index+"' style='padding:0px 7px 0px 7px'></td>"+
 						"<td><input type='text' id='txt-hours' name='txt-hours' style='padding:0px 7px 0px 7px' onclick='check();'></td>"+
@@ -78,12 +81,15 @@
 		});
 
 		$(".btn-clear").click(function(){
+			$(".alert-warning").html("");
 			$("#txt-id,#txt-name,#txt-hours").val("");
 			$(".status").html("");
 			$(".chk").prop( "checked", false );
 		});
 
 		$(".btn-save").click(function(){
+				var pass = 0;
+				var fail = 0;
 			$('.table-add > tbody  > tr').each(function() {
 				var check = $("#txt-id",this).attr("mytag");
 				var level = 0;
@@ -91,6 +97,7 @@
 	          		$("#txt-id",this).val() == "" || $("#txt-name",this).val() == "" || $("#txt-hours",this).val()== "" 
 	          	){
 					$("#status"+check).html("<span class='glyphicon glyphicon-remove'></span>");
+					fail += 1;
 	          	}else{
 	          		if( $("#status"+check+" span").hasClass("glyphicon-ok") ){
 	          			$(this).remove();
@@ -109,6 +116,7 @@
 		          		$.ajax({
 								url: $("input[name='url']").val()+"subject_controller/add",
 								type: "post",
+								async:false,
 								data: {
 									id: $("#txt-id",this).val(),
 									name: $("#txt-name",this).val(),
@@ -119,17 +127,31 @@
 									var str = data.split("\n");
 									if (str[0] == "error") {
 									    $("#status"+check).html("<span class='glyphicon glyphicon-remove'></span>");
+									    fail += 1;
 									} else {
-									    $("#status"+check).html("<span class='glyphicon glyphicon-ok'></span>");
+									    //$("#status"+check).html("<span class='glyphicon glyphicon-ok'></span>");
+									    $("#status"+check).parent().parent().remove();
+									    pass += 1;
+									    count = count-1;
 									}
 								},
 								error: function(jqXHR) {
-									alert(jqXHR.status);
+									//alert(jqXHR.status);
 								}
-		                	});
+		                	});		 
 	          		}
 	          	}          	
 			});
+			if(count==0){
+				$("#show").html("");
+			}else{
+				$("#show").html(count);
+			}
+			if( fail == 0){
+				$(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span>ผ่าน "+pass+" รายการ ไม่ผ่าน "+fail+" รายการ</p>");
+			}else{
+				$(".alert-warning").html("<p class='alert alert-danger role='alert'> ผ่าน "+pass+" รายการ ไม่ผ่าน "+fail+" รายการ</p>");
+			}
 		});
 	});
 	

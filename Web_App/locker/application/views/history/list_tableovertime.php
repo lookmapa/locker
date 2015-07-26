@@ -115,11 +115,13 @@
             $arr_bdetail = explode("/",$b_detail);
             $arr_ndetail = explode("/", $n_detail);
             for ($i=1; $i < $max ; $i++) { 
+                $bDate = new DateTime($date[$i]);
+                $datearray = explode("-", $bDate->format("Y-m-d"));
                 echo "<tr>";
                 echo "<td>".$i."</td>";
                 if( $i == $arr_buser[$c_user] ){ echo "<td rowspan='".$arr_nuser[$c_user]."'>".$name[$i]."</td>"; $c_user += 1; }
                 if( $i == $arr_byear[$c_year] ){ echo "<td rowspan='".$arr_nyear[$c_year]."'>".$year[$i]."</td>"; $c_year += 1;}
-                if( $i == $arr_bday[$c_day] ){ echo "<td rowspan='".$arr_nday[$c_day]."'>".$date[$i]."</td>"; $c_day += 1;}
+                if( $i == $arr_bday[$c_day] ){ echo "<td rowspan='".$arr_nday[$c_day]."'>".$bDate->format("d-m-").($datearray[0]+543)."</td>"; $c_day += 1;}
                 echo "<td>".$begin[$i]."</td>";
                 echo "<td>".$end[$i]."</td>";
                 if( $i == $arr_broom[$c_room] ){ echo "<td rowspan='".$arr_nroom[$c_room]."'>".$room[$i]."</td>"; $c_room += 1;}

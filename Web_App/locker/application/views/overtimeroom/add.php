@@ -5,6 +5,7 @@
         		</div>
         	    <div class="panel-body">
         	    	<div class="table table-responsive">
+                     <div class="alert-warning"></div>
         				<table class="table table-bordered table-adds">
         						<tbody> 
                                 <tr>
@@ -87,19 +88,23 @@
 
         $(".btn-clear").click(function(){
             $("input[name='txt']").val("");
+            $(".alert-warning").html("");
             $("a.btn-user").html('เลือกอาจารย์<span class="caret" style="margin-left:10px"></span>');
             $("#value").val("0");
         });
 
     	$(".btn-save").click(function() {
+            $(".alert-warning").html("");
             if( $("#value").val() == 0 ){
-                alert("กรุณาเลือกอาจารย์");
+                //alert("กรุณาเลือกอาจารย์");
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณาเลือกอาจารย์</p>");
             } else {
                 if(
                     $("#txt-timeF").val() == "" || $("#txt-timeE").val()== "" || $("#txt-date").val()== "" || 
                     $("#txt-room").val() == "" || $("#txt-detail").val() == "" 
                 ){
-                    alert("กรุณากรอกข้อมูลให้ครบ");
+                   // alert("กรุณากรอกข้อมูลให้ครบ");
+               $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูลให้ครบ</p>");
                 }else{
                     var time_f = $("#txt-timeF").val().split(":");
                     var time_e = $("#txt-timeE").val().split(":");
@@ -119,14 +124,20 @@
 
                             },
                             success : function(rs){
-                                alert(rs);
+                                if(rs == "บันทึกข้อมูลเรียบร้อย"){
+                                    $(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span>"+rs+"</p>");
+                                }else{
+                                    $(".alert-warning").html("<p class='alert alert-danger role='alert'>"+rs+"</p>");
+                                }
+                               
                             },
                             error: function(jqXHR) {
-                                alert(jqXHR.status);
+                               // alert(jqXHR.status);
                             }
                         });
                     }else{
-                        alert("คุณกรอกเวลาไม่ถูกต้อง กรุณากรอกใหม่อีกรอบ \n เวลาเริ่ม < เวลาจบ");
+                        $(".alert-warning").html("<p class='alert alert-danger role='alert'>คุณกรอกเวลาไม่ถูกต้อง กรุณากรอกใหม่อีกรอบ เวลาเริ่ม < เวลาจบ</p>");
+                        //alert("คุณกรอกเวลาไม่ถูกต้อง กรุณากรอกใหม่อีกรอบ เวลาเริ่ม < เวลาจบ");
                     }
                 }
             

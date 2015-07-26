@@ -15,7 +15,7 @@
 							</button> 
 						</div>
 	  						<div class="row">
-	  						<?php if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" ){?>
+	  						<?php if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" || $this->session->userdata("sess_type") == "หัวหน้าสาขา/ประธานหลักสูตร" ){?>
 								<div class="col-md-3">
 									<label for="sel2" style ="margin-top:10px">เลือกชื่ออาจารย์ :</label>
 							    	<select  class="form-control" id="sel_user" size="5">

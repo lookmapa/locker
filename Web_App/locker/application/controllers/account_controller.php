@@ -34,7 +34,8 @@ class account_controller extends CI_Controller {
       }
       $password = base64_encode($password);
       
-      $result = $this->account_model->check_insert($rfid,$name,$sname,$username);
+     // $result = $this->account_model->check_insert($rfid,$name,$sname,$username);
+      $result = $this->account_model->check_insert($rfid,$username);
 
       if(count($result) == 0){
         $arrayData  = array(
@@ -45,7 +46,8 @@ class account_controller extends CI_Controller {
                             'UserName' => $username,
                             'PassWord' => $password,
                             'Privileges' => $privileges,
-                            'Level' => $level
+                            'Level' => $level,
+                            'Flag' => "1"
                             );
         $this->account_model->insert($arrayData);
         $result = $this->account_model->getuser_number();
@@ -53,22 +55,18 @@ class account_controller extends CI_Controller {
 
         for($i = 0; $i <= 11; $i++){
             if( substr($license, $i,1) == 1){
-              $this->historynumber_model->insert(array('No_account' => $row->No,'No_number' => ($i+1),'Number' => ($i+1)));
+              $this->historynumber_model->insert(array('No_account' => $row->No,'No_number' => ($i+1)));
             }
           }
         echo "pass";
       }else{
-        $result = $this->account_model->select_where(array('RfidTag' => $rfid));
-        if( $result->num_rows() == 1 ){
+        $result = $this->account_model->select_where(array('RfidTag' => $rfid,'Flag' => '1'));
+        if( $result->num_rows() >= 1 ){
           echo "1";
         }
-        $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname));
-        if( $result->num_rows() == 1 ){
+        $result = $this->account_model->select_where(array('UserName' => $username,'Flag' => '1'));
+        if( $result->num_rows() >= 1 ){
           echo "2";
-        }
-        $result = $this->account_model->select_where(array('UserName' => $username));
-        if( $result->num_rows() == 1 ){
-          echo "3";
         }
       } 
     }
@@ -95,7 +93,7 @@ class account_controller extends CI_Controller {
       }
       $password = base64_encode($password);
 
-      $result = $this->account_model->select_where(array('RfidTag' => $rfid));
+      $result = $this->account_model->select_where(array('RfidTag' => $rfid,'Flag' => '1'));
 
       if($result->num_rows() == 0){
 
@@ -121,23 +119,7 @@ class account_controller extends CI_Controller {
        
         }else if( $before_username == $username ){
 
-          $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname));
-          if($result->num_rows() == 0){
-            $this->historynumber_model->delete($no);
-            $this->account_model->update($no,$arrayData);
-            for($i = 0; $i <= 11; $i++){
-              if( substr($license, $i,1) == 1){
-                $this->historynumber_model->insert(array('No_account' => $no,'No_number' => ($i+1)));
-              }
-            }
-            echo "pass";
-          }else{
-            echo "1";
-          }
-
-        }else if( $before_name == $name && $before_sname == $sname ){          
-
-          $result = $this->account_model->select_where(array('UserName' => $username));
+          $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname,'Flag' => '1'));
           if($result->num_rows() == 0){
             $this->historynumber_model->delete($no);
             $this->account_model->update($no,$arrayData);
@@ -150,10 +132,25 @@ class account_controller extends CI_Controller {
           }else{
             echo "2";
           }
+
+        }else if( $before_name == $name && $before_sname == $sname ){          
+
+          $result = $this->account_model->select_where(array('UserName' => $username,'Flag' => '1'));
+          if($result->num_rows() == 0){
+            $this->historynumber_model->delete($no);
+            $this->account_model->update($no,$arrayData);
+            for($i = 0; $i <= 11; $i++){
+              if( substr($license, $i,1) == 1){
+                $this->historynumber_model->insert(array('No_account' => $no,'No_number' => ($i+1)));
+              }
+            }
+            echo "pass";
+          }else{
+            echo "3";
+          }
         }
 
       }else{
-          
           $arrayData  = array( 
                             'Name' => $name,
                             'SName' => $sname,
@@ -163,7 +160,6 @@ class account_controller extends CI_Controller {
                             'Level' => $level
                             );          
           if( $before_rfid == $rfid && $before_username == $username && $before_name == $name && $before_sname == $sname ){
-            
             $this->historynumber_model->delete($no);
             $this->account_model->update($no,$arrayData);
             for($i = 0; $i <= 11; $i++){
@@ -173,27 +169,10 @@ class account_controller extends CI_Controller {
             }
             echo "pass";
 
-          }else if( $before_rfid == $rfid && $before_username == $username ){
-                      
-            $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname));
+          }else if( $before_rfid == $rfid && $before_username == $username ){        
+            $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname,'Flag' => '1'));
             if( $result->num_rows() == 0 ){ 
               $this->historynumber_model->delete($no);             
-              $this->account_model->update($no,$arrayData);
-              for($i = 0; $i <= 11; $i++){
-                if( substr($license, $i,1) == 1){
-                  $this->historynumber_model->insert(array('No_account' => $no,'No_number' => ($i+1)));
-                }
-              }
-              echo "pass";
-            }else{
-              echo "1";
-            }
-
-          }else if( $before_rfid == $rfid && $before_name == $name && $before_sname == $sname ){
-                     
-            $result = $this->account_model->select_where(array('UserName' => $username));
-            if( $result->num_rows() == 0 ){    
-              $this->historynumber_model->delete($no);           
               $this->account_model->update($no,$arrayData);
               for($i = 0; $i <= 11; $i++){
                 if( substr($license, $i,1) == 1){
@@ -205,11 +184,25 @@ class account_controller extends CI_Controller {
               echo "2";
             }
 
+          }else if( $before_rfid == $rfid && $before_name == $name && $before_sname == $sname ){     
+            $result = $this->account_model->select_where(array('UserName' => $username,'Flag' => '1'));
+            if( $result->num_rows() == 0 ){    
+              $this->historynumber_model->delete($no);           
+              $this->account_model->update($no,$arrayData);
+              for($i = 0; $i <= 11; $i++){
+                if( substr($license, $i,1) == 1){
+                  $this->historynumber_model->insert(array('No_account' => $no,'No_number' => ($i+1)));
+                }
+              }
+              echo "pass";
+            }else{
+              echo "3";
+            }
+
           }else if( $before_rfid == $rfid ){
-            
-            $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname));
+            $result = $this->account_model->select_where(array('Name' => $name,'SName' => $sname,'Flag' => '1'));
             if( $result->num_rows() == 0 ){
-              $result = $this->account_model->select_where(array('UserName' => $username));   
+              $result = $this->account_model->select_where(array('UserName' => $username,'Flag' => '1'));   
               if( $result->num_rows() == 0 ){
                 $this->historynumber_model->delete($no);           
                 $this->account_model->update($no,$arrayData);
@@ -220,10 +213,13 @@ class account_controller extends CI_Controller {
                 }
                 echo "pass";  
               }else{
-                echo "2";
+                echo "3";
               }
             }          
+          }else{
+            echo "1";
           }
+
       }
     }
     
@@ -260,12 +256,13 @@ class account_controller extends CI_Controller {
     }
 
     public function delete($no){
-      $this->account_model->delete($no);
+      $this->account_model->delete($no,array('Flag' => "0"));
     }
 
     public function login(){
-      $username = $this->input->post('txt-username');
-      $password = $this->input->post('txt-password');
+      $username = $this->input->post('username');
+      $password = base64_decode($this->input->post('password'));
+      $b_password = $password;
       $count_user = 0;
       $count_pass = 0;
 
@@ -276,7 +273,7 @@ class account_controller extends CI_Controller {
       }
       $password = base64_encode($password);
 
-      $result = $this->account_model->select_where(array('UserName' => $username,'PassWord' => $password ));
+      $result = $this->account_model->select_where(array('UserName' => $username,'PassWord' => $password,'Flag' => '1'));
         if( $result->num_rows() > 0 ){
           $row = $result->row();
           $result1 = $this->config_model->list_config();
@@ -290,9 +287,20 @@ class account_controller extends CI_Controller {
                                 'sess_town' => $row1->Town
                               );
           $this->session->set_userdata($arr_session);
-          redirect('history_controller/view_add','refresh');
+          //redirect('history_controller/view_add','refresh');
+          echo "success";
         }else{
-          $result = $this->account_model->list_account();
+            $result = $this->account_model->select_where(array('UserName' => $username,'Flag' => '1'));
+            if( $result->num_rows() > 0 ){
+             // $arr_data = array('st_username' => "",'st_password' => "กรุณากรอก password ให้ถูกต้อง",'t_username' => $username,'t_password' => $b_password );
+              //$this->load->view('account/login',$arr_data);
+              echo "failPassword";
+            }else{
+              //$arr_data = array('st_username' => "username ไม่มีในระบบ",'st_password' => "",'t_username' => $username,'t_password' => $b_password );
+              //$this->load->view('account/login',$arr_data);
+              echo "failUsername";
+            }
+          /*$result = $this->account_model->list_account();
           foreach ($result as $row ) {
             if( $row->UserName == $username ){
               $count_user = 1;
@@ -300,9 +308,9 @@ class account_controller extends CI_Controller {
             if( $row->PassWord == $password ){
               $count_pass = 1;
             }
-          }
+          }*/
 
-          if( $count_user == 1 && $count_pass == 0 ){
+         /* if( $count_user == 1 && $count_pass == 0 ){
             $arr_data = array('st_username' => "",'st_password' => "กรุณากรอก password ให้ถูกต้อง",'t_username' => $username,'t_password' => $password );
             $this->load->view('account/login',$arr_data);
           }else if( $count_user == 0 && $count_pass == 1 ){
@@ -311,7 +319,7 @@ class account_controller extends CI_Controller {
           }else{
             $arr_data = array('st_username' => "username ไม่มีในระบบ",'st_password' => "password ไม่มีในระบบ",'t_username' => $username,'t_password' => $password );
             $this->load->view('account/login',$arr_data);
-          }
+          }*/
         }  
     }
 

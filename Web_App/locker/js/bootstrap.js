@@ -13,6 +13,11 @@ if (typeof jQuery === 'undefined') {
   if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {
     throw new Error('Bootstrap\'s JavaScript requires jQuery version 1.9.1 or higher')
   }
+
+  $('[data-toggle="del"]').tooltip();
+$('[data-toggle="detail"]').tooltip();
+$('[data-toggle="edit"]').tooltip(); 
+
 }(jQuery);
 
 /* ========================================================================

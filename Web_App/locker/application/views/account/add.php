@@ -10,6 +10,7 @@
         	    <div class="panel-body">
                     <div calss="row">
                         <div class="table table-responsive">
+                        <div class="alert-warning"></div>
                             <table class="table table-bordered">                               
                                 <tbody>
                                     <tr>
@@ -36,6 +37,7 @@
                                             สิทธิการเข้าใช้&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             <select id="cmblicense" name="license" >
                                                  <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ</option>
+                                                 <option value="หัวหน้าสาขา/ประธานหลักสูตร" >หัวหน้าสาขา/ประธานหลักสูตร</option>
                                                  <option value="ผู้ใช้งานทั่วไป" selected>ผู้ใช้งานทั่วไป</option>
                                             </select>
                                         </td>
@@ -154,7 +156,9 @@
         $(".btn-save").click(function(){
             if( $("#txt-rfid").val() == "" || $("#txt-name").val() == "" || $("#txt-sname").val() == "" || 
                 $("#txt-username").val() == "" || $("#txt-password").val() == "" ){
-                alert("กรุณากรอกข้อมูลให้ครบ");
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูลให้ครบ</p>");
+            }else if($("#txt-password").val().length < 4){
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>password ต้องมากกว่า 4 ตัวอักษร</p>");
             }else{
                 var total = "";
                 var level = 0;
@@ -185,31 +189,19 @@
                         level: level
                     },
                     success : function(rs){
-                        if( rs.length == 4){
-                            alert("บันทึกข้อมูลเรียบร้อย");
+                         if( rs.length == 4){
+                            $(".alert-warning").html("<p class='alert alert-success role='alert'>บันทึกข้อมูลเรียบร้อย</p>");
                             window.location.href = $("input[name='url']").val()+"account_controller/view_show";
                         }else if(parseInt(rs) == 1){
                             $("#lb1").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>รหัสบัตรนี้มีคนใช้แล้ว กรุณาเปลี่ยนเป็นรหัสอื่น</p>");
                         }else if(parseInt(rs) == 2){
-                            $("#lb2,#lb3").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
-                        }else if(parseInt(rs) == 3){
                             $("#lb4").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>username นี้มีผู้ใช้แล้ว กรุณาเปลี่ยนเป็น username อื่น</p>");
                         }else if(parseInt(rs) == 12){
-                            $("#lb1,#lb2,#lb3").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
-                        }else if(parseInt(rs) == 13){
                             $("#lb1,#lb4").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
-                        }else if(parseInt(rs) == 23){
-                            $("#lb2,#lb3,#lb4").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
-                        }else{
-                            $("#lb1,#lb2,#lb3,#lb4").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
-                        }  
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>รหัสบัตร และ username นี้มีคนใช้แล้ว กรุณาเปลี่ยนใหม่</p>");
+                        }
                     }
                 });
             }

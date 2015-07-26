@@ -22,7 +22,7 @@
 		                            <div class="btn-group btn-group-sm " style ="margin-bottom:15px">
 		                                <a class="btn dropdown-toggle btn-default btn-year-show" data-toggle="dropdown" href="#" style="width:70px;">เลือกปี<span class="caret" style="margin-left:10px;"></span></a>
 		                                    <ul class="dropdown-menu btn-year-show" style=" height: 120px;overflow: auto;">
-		                                    	<?php for($i = date("Y")+538; $i<= date("Y")+548; $i++){ ?>
+		                                    	<?php for($i = date("Y")+543; $i<= date("Y")+547; $i++){ ?>
 		                                    		<li style='cursor:pointer'><a><?php echo $i; ?></a></li>
 		                                    	<?php } ?>
 		                                    </ul>
@@ -38,6 +38,7 @@
 		                        </div>
 		                    </div>
 	  						<div class="table table-responsive">
+	  						<div class="alert-miss"></div>
 								<table class="table table-bordered table-add table-striped">
 									<thead>
 										<tr class="info">
@@ -47,14 +48,14 @@
 											<th>วัน</th>
 											<th>เวลาเริ่ม</th>
 											<th>เวลาจบ</th>
-											<th>ตึก</th>
+											<th>อาคาร</th>
 											<th>ห้อง</th>
 											<th>สถานะ</th>
 										</tr>
 									</thead>
 			  						<tbody>
 			  							<tr>
-			  								<td><span class="glyphicon glyphicon-trash del" style="cursor:pointer;"></span></td>
+			  								<td><span class="glyphicon glyphicon-trash del" style="cursor:pointer;" data-toggle="del" title="ลบ"></span></td>
 			  								<td><input type="text" id="txt-name" name="txt-name1" size="17px" mytag="1"  style="padding:0px 7px 0px 7px"> &nbsp;<label id="lb11" name="check_lb"></td>
 			  								<td><input type="text" id="txt-group" size="4px" style="padding:0px 7px 0px 7px" onclick='check();'> &nbsp;<label id="lb21" name="check_lb"></td>
 			  								<td>
@@ -74,6 +75,7 @@
 			  							</tr>			  							
 			  						</tbody>
 		    					</table>
+		    					<div class="alert-warning"></div>
 		    					<input type="hidden" name="url" value="<?php echo base_url();?>">
 		    					<input type="hidden" id="default_town" value="<?php echo $this->session->userdata('sess_town');?>">
 		    					<input type="hidden" id="value">
@@ -99,7 +101,7 @@
    		var no = [];
    		var index=1;
 		var count=1;
-		
+		$('[data-toggle="del"]').tooltip();
 		$.ajax({
                 url: $("input[name='url']").val()+"subject_controller/list_subject",
                 type: "get",
@@ -107,7 +109,7 @@
                 success: function(rs) {
                 	var str = rs.split(",");
                     for(var i=0; i<=str.length-2;i++){
-                    	var str1 = str[i].split("-");
+                    	var str1 = str[i].split(".");
                     	no[i] = str1[0];
                         subject[i] = str1[1];
                         hr[i] = str1[2];
@@ -118,6 +120,7 @@
 		$(".btn-clear").click(function(){
 			$("#txt-name,#txt-group,#txt-timeF,#txt-timeE,#txt-town,#txt-room").val("");
 			$(".status").html("");
+			$(".alert-warning,.alert-miss,.content").html("");
 			$("a.btn-user-show").html('เลือกอาจารย์<span class="caret" style="margin-left:10px"></span>');
 			$("a.btn-year-show").html('เลือกปี<span class="caret" style="margin-left:10px"></span>');
 			$("a.btn-term-show").html('เลือกเทอม<span class="caret" style="margin-left:10px"></span>');
@@ -129,7 +132,7 @@
 			$(".table-add tbody").parent()
 				.append(
 					"<tr>"+
-						"<td><span class='glyphicon glyphicon-trash del' style='cursor:pointer;'></span></td>"+
+						"<td><span class='glyphicon glyphicon-trash del' style='cursor:pointer;' data-toggle='del' title='ลบ'></span></td>"+
 						"<td><input type='text' id='txt-name' name='txt-name"+index+"' mytag='"+index+"' size='17px' style='padding:0px 7px 0px 7px'> &nbsp;<label id='lb1"+index+"' name='check_lb'></td>"+
 						"<td><input type='text' id='txt-group' size='4px' style='padding:0px 7px 0px 7px' onclick='check();'> &nbsp;<label id='lb2"+index+"' name='check_lb'></td>"+
 						"<td>"+
@@ -176,7 +179,7 @@
 	    	var n = $(this).attr("mytag");
 	    	if( 
 	    		$('input[name=txt-timeF'+n+']').val() == 8 || $('input[name=txt-timeF'+n+']').val() == 9 || $('input[name=txt-timeF'+n+']').val() == 10 ||
-	    		$('input[name=txt-timeF'+n+']').val() == 13 || $('input[name=txt-timeF'+n+']').val() == 14 || $('input[name=txt-timeF'+n+']').val() == 15 ||
+	    		$('input[name=txt-timeF'+n+']').val() == 13 || $('input[name=txt-timeF'+n+']').val() == 14 || $('input[name=txt-timeF'+n+']').val() == 15 || $('input[name=txt-timeF'+n+']').val() == 16 ||
 	    		$('input[name=txt-timeF'+n+']').val() == 17 || $('input[name=txt-timeF'+n+']').val() == 18 || $('input[name=txt-timeF'+n+']').val() == 19  || $('input[name=txt-timeF'+n+']').val() == 20
 	    	){
 	    		if( $('input[name=txt-name'+n+']').val() != "" ){
@@ -219,8 +222,10 @@
         });
 
 	    $(".btn-save").click(function(){
-	    
+	    	$(".alert-warning,.alert-miss").html("");
 		    var str = "";
+		    var pass = 0;
+			var fail = 0;
 	        if( $("a.btn-user-show").text() == "เลือกอาจารย์" ){
 	          str += "เลือกอาจารย์ ";
 	        }
@@ -241,6 +246,7 @@
 	          			$("#txt-group",this).val() == "" || $("#txt-town",this).val() == "" || $("#txt-room",this).val() == ""
 	          		){
 	          			$("#status"+check).html("<span class='glyphicon glyphicon-remove'></span>");
+	          			fail += 1;
 	          		}else{
 	          			if( $("#status"+check+" span").hasClass("glyphicon-ok") ){
 	          				$(this).remove();
@@ -273,10 +279,12 @@
                             			$("#lb1"+check).html("X").css({"color": "red", "font-size": "13px"});
                             			$("#lb2"+check).html("X").css({"color": "red", "font-size": "13px"});
                             			$("#status"+check).html("<span class='glyphicon glyphicon-remove'></span>");
+                            			fail += 1;
                         			}else if(rs == "time"){
                            				$("#lb4"+check).html("X").css({"color": "red", "font-size": "13px"});
                            				$("#lb5"+check).html("X").css({"color": "red", "font-size": "13px"});
                            				$("#status"+check).html("<span class='glyphicon glyphicon-remove'></span>");
+                           				fail += 1;
                         			}else if( rs == "error" ){
                             			$("#lb1"+check).html("X").css({"color": "red", "font-size": "13px"});
                             			$("#lb2"+check).html("X").css({"color": "red", "font-size": "13px"});
@@ -286,20 +294,35 @@
                             			$("#lb6"+check).html("X").css({"color": "red", "font-size": "13px"});
                             			$("#lb7"+check).html("X").css({"color": "red", "font-size": "13px"});
                             			$("#status"+check).html("<span class='glyphicon glyphicon-remove'></span>");
+                            			fail += 1;
                         			}else if( rs == "pass"){
-                        				$("#status"+check).html("<span class='glyphicon glyphicon-ok'></span>");
+                        				//$("#status"+check).html("<span class='glyphicon glyphicon-ok'></span>");
+                        				$("#status"+check).parent().parent().remove();
+									    pass += 1;
+									    count = count-1;
                         			}
 								},
 								error: function(jqXHR) {
-									alert(jqXHR.status);
+									//alert(jqXHR.status);
 								}
 		                	});
 	                	}
 	          		}			
 	        	});
+				if(count==0){
+					$("#show").html("");
+				}else{
+					$("#show").html(count);
+				}
+				if( fail == 0){
+					$(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span>ผ่าน "+pass+" รายการ ไม่ผ่าน "+fail+" รายการ</p>");
+				}else{
+					$(".alert-warning").html("<p class='alert alert-danger role='alert'> ผ่าน "+pass+" รายการ ไม่ผ่าน "+fail+" รายการ</p>");
 				list_table(); 
+				}
 	        }else{
-	        	alert("กรุณา "+str);
+	        	$(".alert-miss").html("<p class='alert alert-danger role='alert'>กรุณา"+str+"</p>");
+	        	//alert("กรุณา "+str);
 	        }   
 	    });
 		

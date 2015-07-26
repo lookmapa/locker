@@ -61,9 +61,10 @@ class subject_table_model extends CI_Model {
         $this->db->where($user);
         $this->db->where($year);
         $this->db->where($term);
-        $this->db->order_by("No_account","asc");
+        //$this->db->order_by("No_account","asc");
         $this->db->order_by("Year","desc");
         $this->db->order_by("Term","desc");
+        $this->db->order_by("account.Name");
         $this->db->join('subject', 'subject.No = No_subject');  
         $this->db->join('account', 'account.No = No_account');       
         $query = $this->db->get('subject_timetable');

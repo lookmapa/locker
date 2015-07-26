@@ -41,6 +41,7 @@ class Subject_controller extends CI_Controller {
     public function delete() {
         $no = $this->input->post('no');
         $this->subject_model->delete($no);
+        redirect('subject_controller/view_showAll','refresh');
     }
 
     public function edit(){
@@ -94,7 +95,7 @@ class Subject_controller extends CI_Controller {
         $result = $this->subject_model->list_subject("all"); 
         if(count($result)>0){
           foreach ($result as $row):
-            echo $row->No."-".$row->Id."/".$row->Name."-".$row->Hours.",";
+            echo $row->No.".".$row->Id."/".$row->Name.".".$row->Hours.",";
          endforeach;
         }else{
             echo "error";
@@ -109,7 +110,6 @@ class Subject_controller extends CI_Controller {
         }else{
             $data['result'] = $this->subject_model->list_subject($status);
         }
-       
         $this->load->view('subject/list_table',$data);
     }
 
@@ -170,6 +170,20 @@ class Subject_controller extends CI_Controller {
         }else{
             $data['status'] = "front";
         }
+        $this->load->view('main/header');
+        $this->load->view('subject/menu');
+        $this->load->view('subject/show',$data);
+        $this->load->view('main/footer');
+      }else{
+
+        redirect('account_controller/view_login','refresh');
+      }  
+    }
+
+    public function view_showAll(){
+      if($this->session->userdata("sess_username") != null){
+        $data['status'] = "back";
+        $data['detail'] = "total";
         $this->load->view('main/header');
         $this->load->view('subject/menu');
         $this->load->view('subject/show',$data);

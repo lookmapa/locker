@@ -144,17 +144,19 @@
                                             $arr_ndetail = explode("/", $n_detail);
 
                                             foreach ($result as $row):
+                                                $bDate = new DateTime($row->Date);
+                                                $datearray = explode("-", $bDate->format("Y-m-d"));
                                                 echo "<tr>";
                                                 echo "<td>".$count."</td>";
                                                 if( $count == $arr_buser[$c_user] ){ echo "<td rowspan='".$arr_nuser[$c_user]."'>".$row->Name." ".$row->SName."</td>"; $c_user += 1; }
-                                                if( $count == $arr_bdate[$c_date] ){ echo "<td rowspan='".$arr_ndate[$c_date]."'>".$row->Date."</td>"; $c_date += 1;}
+                                                if( $count == $arr_bdate[$c_date] ){ echo "<td rowspan='".$arr_ndate[$c_date]."'>".$bDate->format("d-m-").($datearray[0]+543)."</td>"; $c_date += 1;}
                                                 if( $count == $arr_btimeb[$c_timeb] ){ echo "<td rowspan='".$arr_ntimeb[$c_timeb]."'>".$row->Time_Begin."</td>"; $c_timeb += 1;}
                                                 if( $count == $arr_btimee[$c_timee] ){ echo "<td rowspan='".$arr_ntimee[$c_timee]."'>".$row->Time_End."</td>"; $c_timee += 1;}
                                                 if( $count == $arr_broom[$c_room] ){ echo "<td rowspan='".$arr_nroom[$c_room]."'>".$row->Room."</td>"; $c_room += 1;}
                                                 if( $count == $arr_bdetail[$c_detail] ){ echo "<td rowspan='".$arr_ndetail[$c_detail]."'>".$row->Detail."</td>"; $c_detail += 1;}
                                                 echo "<td align='center'>";
-                                                echo "<a id='edit' name=".base64_encode($row->otr_no)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                                echo "<a id='del' name=".$row->otr_no."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash'></span></a>";
+                                                echo "<a id='edit' name=".base64_encode($row->otr_no)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข'></span></a>";
+                                                echo "<a id='del' name=".$row->otr_no."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash' data-toggle='del' title='ลบ'></span></a>";
                                                 echo "</td>";
                                                 echo "</tr>";
                                                 $count += 1;
@@ -196,7 +198,9 @@
 
     $(document).ready(function(){
         var number = 0;
-
+        $('[data-toggle="del"]').tooltip();
+        $('[data-toggle="edit"]').tooltip(); 
+        
         $("a#del").click(function(){
             $('#dl_modal').modal('show');
             number = $(this).attr('name');

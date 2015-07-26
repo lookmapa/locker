@@ -115,12 +115,14 @@
             $arr_nstatus = explode("/", $n_status);
 
             for($i = 1; $i < $max; $i++){
+                $bDate = new DateTime($date[$i]);
+                $datearray = explode("-", $bDate->format("Y-m-d"));
                 echo "<tr>";
                 echo "<td>".$i."</td>";
                 if( $i == $arr_buser[$c_user] ){ echo "<td rowspan='".$arr_nuser[$c_user]."'>".$user[$i]."</td>"; $c_user += 1; }
                 if( $i == $arr_byear[$c_year] ){ echo "<td rowspan='".$arr_nyear[$c_year]."'>".$year[$i]."</td>"; $c_year += 1; }
                 if( $i == $arr_bsubject[$c_subject] ){ echo "<td rowspan='".$arr_nsubject[$c_subject]."'>".$subject[$i]."</td>"; $c_subject += 1; }
-                if( $i == $arr_bdate[$c_date] ){ echo "<td rowspan='".$arr_ndate[$c_date]."'>".$date[$i]."</td>"; $c_date += 1;}
+                if( $i == $arr_bdate[$c_date] ){ echo "<td rowspan='".$arr_ndate[$c_date]."'>".$bDate->format("d-m-").($datearray[0]+543)."</td>"; $c_date += 1;}
                 if( $i == $arr_bstatus[$c_status] ){ 
                     if( $status[$i] == "ขาดสอน"){ 
                         echo "<td rowspan='".$arr_nstatus[$c_status]."'><font style='color:red'>".$status[$i]."</font></td>"; 

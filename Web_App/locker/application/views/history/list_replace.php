@@ -15,10 +15,12 @@
 		<?php
             if( $max > 0){
                 for( $i = 1; $i <= $max; $i++){
+                    $bDate = new DateTime($date[$i]);
+                    $datearray = explode("-", $bDate->format("Y-m-d"));
                     echo "<tr>";
                     echo "<td>".$i."</td>";
                     echo "<td>".$Buser[$i]."</td>";
-                    echo "<td>".$date[$i]."</td>";
+                    echo "<td>".$bDate->format("d-m-").($datearray[0]+543)."</td>";
                     echo "<td>".$timeb[$i]."</td>";
                     echo "<td>".$timee[$i]."</td>";
                     echo "<td>".$room[$i]."</td>";

@@ -1,9 +1,9 @@
-﻿<?php date_default_timezone_set('America/Los_Angeles'); ?>
+<?php date_default_timezone_set('America/Los_Angeles'); ?>
 <table class="table table-bordered  table-historydetail" style="size:2px;">
     <thead>
         <tr class="info">
             <th> ลำดับ </th>
-            <th> ชื่อ </th>
+            <th> ชื่อ - นามสกุล </th>
             <th> ปีการศึกษา </th>
             <th> วันที่ </th>
             <th> เวลาเริ่ม </th>
@@ -128,12 +128,16 @@
         <span class="glyphicon glyphicon-save"></span> บันทึก
     </button>                           
 <?php } ?>
+<input type="hidden" id="pass" value="<?php echo $pass;?>">
+<input type="hidden" id="fail" value="<?php echo $fail;?>">
+<input type="hidden" id="badge" value="<?php echo $this->session->userdata("sess_message");?>">
 <script type="text/javascript">
     var ac_no = [];
     var ac_name = [];
 
     $(document).ready(function(){
-
+    	$(".alert-success").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span> ผ่าน "+$("#pass").val()+" รายการ ไม่ผ่าน "+$("#fail").val()+" รายการ</p>");
+        $(".badge").html($("#badge").val());
         $.ajax({
             url: $("input[name='url']").val()+"account_controller/list_account",
             type: "get",
@@ -165,21 +169,36 @@
             $.ajax({
                 url: $("input[name='url']").val()+"history_controller/edit",
                 type: "post", 
+                async: false,
                 data: {
+                    user: $("#sel_user :selected").val(),
                     no: no,
                     status : status,
                     detail: detail
                 },
                 success: function(rs){
-                    if( rs.length == 0){
-                        alert("บันทึกข้อมูลเรียบร้อย");
-                        window.location.href = $("input[name='url']").val()+"history_controller/view_add"; 
-                    }else{
-                        alert("คุณทำรายการไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                    var pass = 0;
+                    var fail = 0;
+                    var arr = rs.split("-");
+                    for (var i = 0; i < arr.length-1; i++) {
+                        if(arr[i] == 1){
+                            pass += 1;
+                        }else{
+                           fail += 1;
+                        }
                     }
+                    $.ajax({
+                        url: $("input[name='url']").val()+"history_controller/refresh/"+$("#sess_id").val()+"/"+pass+"/"+fail,
+                        type: "post", 
+                        async: false,
+                        success: function(rs){                       	
+                            $("#content").html(rs); 
+                        }
+                    });
+
                 },
                 error: function(jqXHR) {
-                    alert(jqXHR.status);
+                    //alert(jqXHR.status);
                 }
             });
         });

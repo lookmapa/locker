@@ -29,9 +29,9 @@
                                                     echo "<td>".$row->Name."  ".$row->SName."</td>";
                                                     echo "<td>".$row->Privileges."</td>";
                                                     echo "<td align='center'>";
-                                                    echo "<a id='edit' name=".base64_encode($row->No)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                                    echo "<a id='del' name=".$row->No."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash'></span></a>";
-                                                    echo "<a id='list' name=".$row->No."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-list-alt'></span></a>";
+                                                    echo "<a id='edit' name=".base64_encode($row->No)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข'></span></a>";
+                                                    echo "<a id='del' name=".$row->No."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash' data-toggle='del' title='ลบ'></span></a>";
+                                                    echo "<a id='list' name=".$row->No."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-list-alt' data-toggle='detail' title='รายละเอียด'></span></a>";
                                                     echo "</td>";
                                                     echo "</tr>";
                                                     $i += 1;
@@ -132,6 +132,10 @@
     $(document).ready(function(){
         var number = 0;
         
+        $('[data-toggle="detail"]').tooltip();
+        $('[data-toggle="edit"]').tooltip(); 
+        $('[data-toggle="del"]').tooltip();
+
         $("a#list").click(function(){
             $('#list_modal').modal('show');
             number = $(this).attr('name');

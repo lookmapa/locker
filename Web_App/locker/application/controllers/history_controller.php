@@ -9,11 +9,12 @@ class History_controller extends CI_Controller {
         parent::__construct(); 
         $this->load->model('account_model');
         $this->load->model('history_model');
+        $this->load->model('overtime_room_model');
         $this->load->model('subject_table_model');
         $this->load->model('config_model');
     }
 
-    public function getcountday($sDate,$eDate,$Day){
+    public function getcountday($sDate,$eDate,$Day,$sDateExam){
         
         $sdate = $sDate;
         $edate = $eDate;
@@ -22,7 +23,7 @@ class History_controller extends CI_Controller {
        
        while($sdate <= $edate){
 
-            if($day == date("l",strtotime($sdate))){
+            if($day == date("l",strtotime($sdate)) && $sdate < $sDateExam ){
                 $count += 1;   
             }
             $sdate = date("Y-m-d",strtotime("+1 day".$sdate));
@@ -71,8 +72,9 @@ class History_controller extends CI_Controller {
             if( $arr_st[$i] == "own" ){
                 if( $arr_detail[$i] != ""){
                     $this->history_model->update($arr_no[$i],array('Status' => $arr_detail[$i]));
+                    $st .= "1-";
                 }else{
-                    //$st .= "1";
+                    $st .= "0-";
                 }
             }else{
                 $result = $this->history_model->list_history(array('history.No' => $no ),"all");
@@ -90,12 +92,13 @@ class History_controller extends CI_Controller {
                     foreach ($result as $row ) {
                         if( $row->No_account == $arr_detail[$i]){
                             $this->history_model->update($arr_no[$i],array('Status' => "เข้าสอนตรงเวลา",'No_account' => $arr_detail[$i],'No_timetable' => $row->No,'Replace' => $user));
+                            $st .= "1-";
                         }else{
-                            $st .= "1";
+                            $st .= "0-";
                         }
                     }
                 }else{
-                    $st .= "1";
+                    $st .= "0-";
                 }
             }
         }
@@ -191,7 +194,8 @@ class History_controller extends CI_Controller {
 
                     while($sdate <= $edate){
                         $status = "ขาดสอน";
-                        if($day == date("l",strtotime($edate))){
+                       
+                        if($day == date("l",strtotime($edate)) ){
                             $num = 7;
                             foreach ($history as $his) {
                                 $bDate = new DateTime($his->Begin);
@@ -202,7 +206,11 @@ class History_controller extends CI_Controller {
                                     if($row->s_level == 1){
                                         $status = "เข้าสอนตรงเวลา";
                                     }else{
-                                        $status = "ขาดสอน";
+                                        if( $edate >= $d->sDateExam ){
+                                            $status = "สอบ";
+                                        }else{
+                                            $status = "ขาดสอน";
+                                        }
                                     }
                                 }
                             }
@@ -407,6 +415,7 @@ class History_controller extends CI_Controller {
 
             $data['sum'] = 0;
             $users = $this->account_model->select_where(array('No' => $user));
+            $history_own = $this->history_model->select_where("select * from history where Status like 'ชดเฉย:%'");
             $u = $users->row();
             if( count($table_subject->result()) > 0){ 
                 $c_max = 0;
@@ -428,7 +437,7 @@ class History_controller extends CI_Controller {
 
                     $date = $this->config_model->list_date(array('Year' => $row->Year,'Term' => $row->Term ));
                     $d = $date->row();
-                    $count = $this->getcountday($d->sDate,$d->eDate,$day);
+                    $count = $this->getcountday($d->sDate,$d->eDate,$day,$d->sDateExam);
                     if( $row->s_level == 1){
                         $c_level += $count;
                         $c_max += $count;
@@ -464,6 +473,7 @@ class History_controller extends CI_Controller {
                 $data['user'] = $u->Name." ".$u->SName;
                 $count = $this->history_model->get_count("count('status') as count",$arrData1);
                 $c = $count->row();
+                $history_own = $this->history_model->select_where("select * from history where Status like 'ชดเฉย:%'");
                 $data['c_come'] = ($c->count - $c_come)+$c_level; 
                 $data['percent_come'] = ($data['c_come']*100)/$c_max;
                 $count = $this->history_model->get_count("count('status') as count",$arrData2);
@@ -558,34 +568,34 @@ class History_controller extends CI_Controller {
 
                             $date = $this->config_model->list_date(array('Year' => $row->Year,'Term' => $row->Term ));
                             $d = $date->row();
-                            $count = $this->getcountday($d->sDate,$d->eDate,$day);
-                            if( $row->s_level == 1){
-                                $c_level += $count;
-                                $c_max += $count;
+                            $count = $this->getcountday($d->sDate,$d->eDate,$day,$d->sDateExam);
+                                if( $row->s_level == 1){
+                                    $c_level += $count;
+                                    $c_max += $count;
 
-                                if( $st == "all" ){
-                                    $his1 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and No_timetable = '.$row->Sjt_No.' and Status = "เข้าสอนตรงเวลา" ');
-                                    $his2 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and No_timetable = '.$row->Sjt_No.' and Status = "เข้าสอนสาย"');
-                                }else if( $st == "year" ){
-                                    $his1 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and No_timetable = '.$row->Sjt_No.' and Status = "เข้าสอนตรงเวลา"');
-                                    $his2 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and No_timetable = '.$row->Sjt_No.' and  Status = "เข้าสอนสาย"');
-                                }else if( $st == "term" ){
-                                    $his1 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and Term = '.$term.' and No_timetable = '.$row->Sjt_No.' and  Status = "เข้าสอนตรงเวลา" ');
-                                    $his2 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and Term = '.$term.' and No_timetable = '.$row->Sjt_No.' and  Status = "เข้าสอนสาย"');
-                                }
+                                    if( $st == "all" ){
+                                        $his1 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and No_timetable = '.$row->Sjt_No.' and Status = "เข้าสอนตรงเวลา" ');
+                                        $his2 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and No_timetable = '.$row->Sjt_No.' and Status = "เข้าสอนสาย"');
+                                    }else if( $st == "year" ){
+                                        $his1 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and No_timetable = '.$row->Sjt_No.' and Status = "เข้าสอนตรงเวลา"');
+                                        $his2 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and No_timetable = '.$row->Sjt_No.' and  Status = "เข้าสอนสาย"');
+                                    }else if( $st == "term" ){
+                                        $his1 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and Term = '.$term.' and No_timetable = '.$row->Sjt_No.' and  Status = "เข้าสอนตรงเวลา" ');
+                                        $his2 = $this->history_model->get_count("count('status') as count",'No_account ='.$u->No.' and Year = '.$year.' and Term = '.$term.' and No_timetable = '.$row->Sjt_No.' and  Status = "เข้าสอนสาย"');
+                                    }
 
-                                if(count($his1->result()) > 0){
-                                    $h = $his1->row();
-                                    $c_come += $h->count;
-                                }
+                                    if(count($his1->result()) > 0){
+                                        $h = $his1->row();
+                                        $c_come += $h->count;
+                                    }
 
-                                if(count($his2->result()) > 0){
-                                    $h = $his2->row();
-                                    $c_level = $c_level-$h->count;
-                                }
-                            }else{ 
-                                $c_max += $count;
-                            }                  
+                                    if(count($his2->result()) > 0){
+                                        $h = $his2->row();
+                                        $c_level = $c_level-$h->count;
+                                    }
+                                }else{ 
+                                    $c_max += $count;
+                                }                  
                         }
 
                             if( $st == "all" ){
@@ -603,6 +613,30 @@ class History_controller extends CI_Controller {
                         $sdata['user'][$c_user] = $u->Name." ".$u->SName;
                         $count = $this->history_model->get_count("count('status') as count",$arrData1);
                         $c = $count->row();
+                        $history_own = $this->history_model->select_where("select * from history where Status like 'ชดเฉย:%'");
+                if(count($history_own->result()) > 0){
+                   foreach ($history_own->result() as $row2) {
+                       $ht_own = explode(':',$row2->Status);
+                       $nDate = new DateTime($ht_own[1]);
+                       $day = $this->getday(($nDate->format("Y")-543).$nDate->format("-m-d"));
+                       $ht_sj = $this->subject_table_model->select_where_join("Day = '".$day."' and `Group` = '".$ht_own[3]."' and `subject`.`Name` ='".$ht_own[2]."'");
+                       if( count($ht_sj->result()) > 0 ){
+                            $c_level += 1;
+                       }  
+                   }
+                }
+                $history_own = $this->overtime_room_model->select_where("Detail like 'ชดเฉย:%'");
+                if(count($history_own->result()) > 0){
+                   foreach ($history_own->result() as $row2) {
+                       $ht_own = explode(':',$row2->Detail);
+                       $nDate = new DateTime($ht_own[1]);
+                       $day = $this->getday(($nDate->format("Y")-543).$nDate->format("-m-d"));
+                       $ht_sj = $this->subject_table_model->select_where_join("Day = '".$day."' and `Group` = '".$ht_own[3]."' and `subject`.`Name` ='".$ht_own[2]."'");
+                       if( count($ht_sj->result()) > 0 ){
+                            $c_level += 1;
+                       }  
+                   }
+                }
                         $sdata['c_come'][$c_user] = ($c->count - $c_come)+$c_level; 
                         $sdata['percent_come'][$c_user] = ($sdata['c_come'][$c_user]*100)/$c_max;
                         $count = $this->history_model->get_count("count('status') as count",$arrData2);
@@ -621,6 +655,7 @@ class History_controller extends CI_Controller {
                         $sdata['percent_late'][$c_user] = 0;
                         $sdata['percent_absent'][$c_user] = 0;
                     }
+
                     $c_user += 1;   
                 }                
             $sdata['round'] = $c_user;
@@ -643,10 +678,10 @@ class History_controller extends CI_Controller {
             $data['header'] = "ปีการศึกษา ( ".$row->min." - ".$row->max." )";
             $data['term'] = "auto";
             $count = $this->history_model->get_count("count('history.No') as count","Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
-            $sort = $this->history_model->sort("Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
+            $sort = $this->history_model->sort("Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' and account.No > 1");
         }else if( $st == "year" ){
             $count = $this->history_model->get_count("count('history.No') as count","Year = ".$year." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
-            $sort = $this->history_model->sort("Year = ".$year." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
+            $sort = $this->history_model->sort("Year = ".$year." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' and account.No > 1");
             $data['header'] = "ปีการศึกษา ".$year;
             $data['term'] = "auto";
         }else if ( $st == "term" ) {
@@ -656,8 +691,8 @@ class History_controller extends CI_Controller {
                 $term = $row->max;
                 $data['term'] = $term; 
             }
-            $count = $this->history_model->get_count("count('history.No') as count","Year = ".$year." and Term = ".$term." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
-            $sort = $this->history_model->sort("Year = ".$year." and Term = ".$term." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
+            $count = $this->history_model->get_count("count('history.No') as count","Year = ".$year." and Term = ".$term." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย'");
+            $sort = $this->history_model->sort("Year = ".$year." and Term = ".$term." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' and account.No > 1");
             $data['header'] = "ปีการศึกษา ".$term."/".$year;
             $data['term'] = $term; 
         }
@@ -668,7 +703,12 @@ class History_controller extends CI_Controller {
             $data['max'] = $row->count;
             $n= 1;
             foreach ($sort as $row) {
-                $data['user'][$n] = $row->Name." ".$row->SName;
+
+                if($row->Flag == 0){
+                    $data['user'][$n] = $row->Name." ".$row->SName." (ยกเลิก)";
+                }else{
+                    $data['user'][$n] = $row->Name." ".$row->SName;
+                }
                 $name[$n] = $row->No_account;
                 if( $st == "all" ){
                     $count = $this->history_model->get_count("count('history.No') as count","No_account = ".$row->No_account." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
@@ -684,7 +724,11 @@ class History_controller extends CI_Controller {
 
             $user = $this->account_model->not_in_account($name);
             foreach ($user as $row ) {
-                $data['user'][$n] = $row->Name." ".$row->SName;
+                if($row->Flag == 0){
+                    $data['user'][$n] = $row->Name." ".$row->SName." (ยกเลิก)";
+                }else{
+                    $data['user'][$n] = $row->Name." ".$row->SName;
+                }
                 $data['val'][$n] = 0;
                 $n += 1;
             }
@@ -704,29 +748,29 @@ class History_controller extends CI_Controller {
         $term = $this->input->post('term');
 
         if( $user == "all" && $year != "all" && $term != "all"){ 
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and Year = ".$year." and Term = ".$term." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and Year = ".$year." and Term = ".$term." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and Year = ".$year." and Term = ".$term." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and Year = ".$year." and Term = ".$term." ORDER BY history.Begin desc");
         }else if( $user == "all" && $year == "all" && $term != "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and Term = ".$term." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and Term = ".$term." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and Term = ".$term." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and Term = ".$term." ORDER BY history.Begin desc");
         }else if( $user == "all" && $year == "all" && $term == "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' ORDER BY history.Begin desc");
         }else if( $user != "all" && $year == "all" && $term == "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and No_account = ".$user." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and No_account = ".$user." ORDER BY history.Begin desc");
         }else if( $user != "all" && $year == "all" && $term != "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
         }else if( $user == "all" && $year != "all" && $term == "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and Year = ".$year." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and Year = ".$year." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and Year = ".$year." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and Year = ".$year." ORDER BY history.Begin desc");
         }else if( $user != "all" && $year != "all" && $term == "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and Year = ".$year." and No_account = ".$user." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and Year = ".$year." and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and Year = ".$year." and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and Year = ".$year." and No_account = ".$user." ORDER BY history.Begin desc");
         }else if( $user != "all" && $year != "all" && $term != "all" ){
-            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace is not null and Year = ".$year." and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
-            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace is not null and Year = ".$year." and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result'] = $this->history_model->select_where("select Name,SName,Begin,End,Number_Room from history join account on history.No_account = account.No join number_locker on history.No_numberlocker = number_locker.No where history.Replace <> 'null' and Year = ".$year." and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
+            $data['result2'] = $this->history_model->select_where("select Name,SName from history join account on history.Replace = account.No where history.Replace <> 'null' and Year = ".$year." and Term = ".$term." and No_account = ".$user." ORDER BY history.Begin desc");
         }
 
         $count = 1;
@@ -775,7 +819,9 @@ class History_controller extends CI_Controller {
     public function view_show(){
         if($this->session->userdata("sess_username") != null){
             $rs_st = $this->subject_table_model->select_where("No > 0");
-            $rs_ht = $this->history_model->get_count("*","Status = 'enpty' or Status = 'แจ้ง'");
+            $rs_ht = $this->history_model->get_count("*","Status = 'empty' or Status = 'แจ้ง'");
+            $rs_ht1 = $this->history_model->get_count("*","`Replace` <> 'null'");
+            //$rs_ht2 = $this->overtime_room_model->select_where("No > 0");
 
             if( $this->input->post('st') == "" || $this->input->post('st') == "report"){ // รายงานการสอน
 
@@ -857,7 +903,7 @@ class History_controller extends CI_Controller {
                 }
             }else if( $this->input->post('st') == "report_replace" ){ // รายงานการเปิดห้องแทน
 
-                if( count($rs_ht->result()) > 0){
+                if( count($rs_ht1->result()) > 0){
                     $data['user'] = $this->account_model->list_account();
                     $data['year'] = $this->history_model->list_year();
                     $this->load->view('main/header');
@@ -875,5 +921,15 @@ class History_controller extends CI_Controller {
         }else{
             redirect('account_controller/view_login','refresh');
         }  
+    } 
+
+    public function refresh($user,$pass,$fail){
+        $data['result'] = $this->history_model->list_history(array('No_account' => $user,'Status' => "empty" ),"all");
+        if( $user == $this->session->userdata("sess_id") ){
+            $this->session->set_userdata('sess_message',count($data['result']));
+        }
+        $data['pass'] = $pass;
+        $data['fail'] = $fail;
+        $this->load->view('history/refresh',$data);
     }
 }

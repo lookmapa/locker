@@ -207,7 +207,12 @@ class Subject_table_controller extends CI_Controller {
                     break;
                   }
                 }else{
-                  $status = "pass";
+                  $result2 = $this->subject_table_model->select_where(array('Year' => $year,'Term' => $term,'Day' => $day,'No_account' => $no_account,'Time_Begin <=' => $time_b,'Time_End >' => $time_b ));
+                  if(count($result2) == 0){
+                    $status = "pass";
+                  }else{
+                    $status = "fail";
+                  }
                 }
               }else{
                 $status = "pass";
@@ -366,13 +371,23 @@ class Subject_table_controller extends CI_Controller {
       if($this->session->userdata("sess_username") != null){
 
         $result = $this->subject_model->list_subject("all");
+        $account = $this->account_model->list_account();
 
         if(count($result) > 0){
-          $data['user'] = $this->account_model->list_account();
-          $this->load->view('main/header');
-          $this->load->view('table_subject/menu');
-          $this->load->view('table_subject/add',$data);
-          $this->load->view('main/footer');
+            if(count($account) > 0){
+              $data['user'] = $this->account_model->list_account();
+              $this->load->view('main/header');
+              $this->load->view('table_subject/menu');
+              $this->load->view('table_subject/add',$data);
+              $this->load->view('main/footer');
+            }else{
+              $data['data'] = "ต้องทำการเพิ่มบัญชีผู้ใช้งานก่อน";
+              $this->load->view('main/header');
+              $this->load->view('table_subject/menu');
+              $this->load->view('main/found',$data);
+              $this->load->view('main/footer');
+            }
+          
         }else{
           $data['data'] = "ต้องทำการเพิ่มรายวิชาก่อน";
           $this->load->view('main/header');
@@ -414,22 +429,31 @@ class Subject_table_controller extends CI_Controller {
       if($this->session->userdata("sess_username") != null){
 
         $result = $this->subject_model->list_subject("all");
+        $account = $this->account_model->list_account();
 
         if(count($result) > 0){
-          if($this->input->post('st') == "back"){
-             $data['b_user'] = $this->input->post('fback-user');
-             $data['b_no_account'] = $this->input->post('fback-no_account');
-             $data['b_year'] = $this->input->post('fback-year');
-             $data['b_term'] = $this->input->post('fback-term');
-          }
-          $data['status'] = $this->input->post('st');
-          $data['user'] = $this->account_model->list_account();
-          $this->load->view('main/header');
-          if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" ){
+          if(count($account) > 0){
+            if($this->input->post('st') == "back"){
+               $data['b_user'] = $this->input->post('fback-user');
+               $data['b_no_account'] = $this->input->post('fback-no_account');
+               $data['b_year'] = $this->input->post('fback-year');
+               $data['b_term'] = $this->input->post('fback-term');
+            }
+            $data['status'] = $this->input->post('st');
+            $data['user'] = $this->account_model->list_account();
+            $this->load->view('main/header');
+            if( $this->session->userdata("sess_type") == "ผู้ดูแลระบบ" ){
+              $this->load->view('table_subject/menu');
+            }
+            $this->load->view('table_subject/show',$data);
+            $this->load->view('main/footer');
+          }else{
+            $data['data'] = "ต้องทำการเพิ่มบัญชีผู้ใช้งานก่อน";
+            $this->load->view('main/header');
             $this->load->view('table_subject/menu');
+            $this->load->view('main/found',$data);
+            $this->load->view('main/footer');
           }
-          $this->load->view('table_subject/show',$data);
-          $this->load->view('main/footer');
         }else{
           $data['data'] = "ต้องทำการเพิ่มรายวิชาก่อน";
           $this->load->view('main/header');

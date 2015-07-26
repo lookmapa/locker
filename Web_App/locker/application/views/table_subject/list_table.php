@@ -175,8 +175,8 @@
                                 echo "<label><font color='#000080'>";
                                 echo $row->Name."</br>".$row->Group.", ".$row->Room."</br>".$row->Town."</br>";
                                 if( $type == "ผู้ดูแลระบบ" ){
-                                echo "<a id='edit' name=".base64_encode($row->etc)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                echo "<a id='del' name=".$row->etc."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-remove'></span></a>";
+                                echo "<a id='edit' name=".base64_encode($row->etc)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข'></span></a>";
+                                echo "<a id='del' name=".$row->etc."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-remove' data-toggle='del' title='ลบ'></span></a>";
                                 }
                                 echo "</font></label>";
                                 echo "</td>"; 
@@ -194,8 +194,8 @@
                                 echo "<label><font color='#000080'>";
                                 echo $row->Name."</br>".$row->Group.", ".$row->Room."</br>".$row->Town."</br>";
                                 if( $type == "ผู้ดูแลระบบ" ){
-                                echo "<a id='edit' name=".base64_encode($row->etc)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                echo "<a id='del' name=".$row->etc."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-remove'></span></a>";
+                                echo "<a id='edit' name=".base64_encode($row->etc)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข'></span></a>";
+                                echo "<a id='del' name=".$row->etc."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-remove' data-toggle='del' title='ลบ'></span></a>";
                                 }
                                 echo "</font></label>";
                                 echo "</td>"; 
@@ -213,8 +213,8 @@
                                 echo "<label><font color='#000080'>";
                                 echo $row->Name."</br>".$row->Group.", ".$row->Room."</br>".$row->Town."</br>";
                                 if( $type == "ผู้ดูแลระบบ" ){
-                                echo "<a id='edit' name=".base64_encode($row->etc)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                echo "<a id='del' name=".$row->etc."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-remove'></span></a>";
+                                echo "<a id='edit' name=".base64_encode($row->etc)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข'></span></a>";
+                                echo "<a id='del' name=".$row->etc."><span style='margin-left:5px;cursor:pointer;' class='glyphicon glyphicon-remove' data-toggle='del' title='ลบ'></span></a>";
                                 }
                                 echo "</font></label>";
                                 echo "</td>"; 
@@ -242,6 +242,9 @@
         $(document).ready(function(){
             var del = 0;
             var edit = 0;
+
+            $('[data-toggle="edit"]').tooltip(); 
+            $('[data-toggle="del"]').tooltip();
 
             $("a#del").click(function(){
                 $('#dl_Modal').modal('show');

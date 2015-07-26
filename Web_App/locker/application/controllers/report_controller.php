@@ -53,7 +53,7 @@ class report_controller extends CI_Controller {
         echo $html;
     }
 
-    public function pdf($data){  
+      public function pdf($data){  
         $count = 1;
         $th = explode(":",$data['th']);
         $td = explode(":",$data['td']);
@@ -63,16 +63,16 @@ class report_controller extends CI_Controller {
             $max = 1;
         }
         for($i=1; $i<=$max; $i++){ 
-            if( $i == $count ) { 
+            if( $i == 1 ) { 
                 $html.="<table border='1' align='center' width='100%' style='border-collapse: collapse'>";
                 $html.="<tr><td colspan='".$data['col']."' align='center'><h2>".$data['header']."</h2></td></tr>";
                 $html.="<tr>";
-            for ($n=0; $n< count($th); $n++) { 
-                $html.="<th width='".$set[$n]."%'>".$th[$n]."</th>"; 
-            }
-            $html.="</tr>";
+                for ($n=0; $n< count($th); $n++) { 
+                    $html.="<th width='".$set[$n]."%'>".$th[$n]."</th>"; 
+                }
+                $html.="</tr>";
             $count += $data['pdf-max'];
-        }
+            }
         if( $data['max'] == 0){
             $html.="<tr><td colspan='".$data['col']."' align='center'>ไม่มีข้อมูล</td></tr>";
         }else{
@@ -83,7 +83,7 @@ class report_controller extends CI_Controller {
             }
             $html.="</tr>";
         }
-        if( $i % $data['pdf-max'] == 0 || $i == $max ) { 
+        if(  $i == $max ) { 
             $html.="</table>";
         }
     }
@@ -98,7 +98,6 @@ class report_controller extends CI_Controller {
         $term = $this->input->post('export_term');
         $export = $this->input->post('export');
         $str = "";
-
         if($year == "all" && $term == "all"){
             $rs_y = $this->subject_table_model->select_where("No > 0 GROUP BY Year ORDER BY Year DESC");
             foreach ($rs_y as $row) {
@@ -132,7 +131,6 @@ class report_controller extends CI_Controller {
                 $str .= "ปีการศึกษา ".$year." เทอม ".$term."\n";
             }
         }
-
         if( $str == "" ){
             if( $user == "all" && $year != "all" && $term != "all"){ 
                 $tablesubject = $this->subject_table_model->list_tablesubject(array('No_account >' => 0),array('Year' => $year),array('Term' => $term)); 
@@ -151,7 +149,6 @@ class report_controller extends CI_Controller {
             }else if( $user != "all" && $year != "all" && $term != "all" ){
                 $tablesubject = $this->subject_table_model->list_tablesubject(array('No_account ' => $user),array('Year ' => $year),array('Term ' => $term)); 
             }   
-
             if(count($tablesubject) > 0){
                 $history = $this->history_model->list_history("(Status = 'เข้าสอนตรงเวลา' or Status = 'เข้าสอนสาย')","all");
                 $count = 1;
@@ -167,13 +164,11 @@ class report_controller extends CI_Controller {
                     }else if( $row->Day == "ศุกร์" ){
                         $day = "Friday";
                     }
-
                     $date = $this->config_model->list_date(array('Year' => $row->Year,'Term' => $row->Term ));
                     $d = $date->row();
                     $sdate = $d->sDate;
                     $edate = $d->eDate;
                     $num = 1;
-
                     while($sdate <= $edate){
                         $status = "ขาดสอน";
                         if($day == date("l",strtotime($edate))){
@@ -187,10 +182,16 @@ class report_controller extends CI_Controller {
                                     if($row->s_level == 1){
                                         $status = "เข้าสอนตรงเวลา";
                                     }else{
-                                        $status = "ขาดสอน";
+                                       if( $edate >= $d->sDateExam ){
+                                            $status = "สอบ";
+                                        }else{
+                                            $status = "ขาดสอน";
+                                        }
                                     }
                                 }
                             }
+                            $tDate = new DateTime($eDate);
+                            $datearray = explode("-", $tDate->format("Y-m-d"));
                             $data['user'][$count] = $row->a_name." ".$row->SName;
                             if( $export == 'PDF' ){
                                 $data['year'][$count] = $row->Term."/".$row->Year;
@@ -198,7 +199,7 @@ class report_controller extends CI_Controller {
                                 $data['year'][$count] = $row->Term."|".$row->Year;
                             }
                             $data['subject'][$count] = $row->s_name."(".$row->Group.")";
-                            $data['date'][$count] = $edate;
+                            $data['date'][$count] = $tDate->format("d-m-").($datearray[0]+543);//$edate;
                             $data['status'][$count] = $status;
                             $count += 1;
                         }
@@ -261,6 +262,8 @@ class report_controller extends CI_Controller {
             foreach ($result1 as $rs1 ) {
                 $bDate = new DateTime($rs1->Begin);
                 $eDate = new DateTime($rs1->End);
+                $datearray = explode("-", $bDate->format("Y-m-d"));
+
 
                 $data['name'][$c_user] = $rs1->Name." ".$rs1->SName;
                 if( $export == 'PDF' ){
@@ -268,7 +271,7 @@ class report_controller extends CI_Controller {
                 }else{
                     $data['year'][$c_user] = $rs1->Term."|".$rs1->Year;
                 }
-                $data['date'][$c_user] = $bDate->format("Y-m-d");
+                $data['date'][$c_user] = $bDate->format("d-m-").($datearray[0]+543);
                 $data['begin'][$c_user] = $bDate->format("H:i:s");
                 $data['end'][$c_user] = $eDate->format("H:i:s");
                 $data['room'][$c_user] = $rs1->Number_Room;
@@ -444,7 +447,7 @@ class report_controller extends CI_Controller {
 
                     $date = $this->config_model->list_date(array('Year' => $row->Year,'Term' => $row->Term ));
                     $d = $date->row();
-                    $count = $this->history_controller->getcountday($d->sDate,$d->eDate,$day);
+                    $count = $this->history_controller->getcountday($d->sDate,$d->eDate,$day,$d->sDateExam);
                     if( $row->s_level == 1){
                         $c_level += $count;
                         $c_max += $count;
@@ -597,7 +600,7 @@ class report_controller extends CI_Controller {
 
                             $date = $this->config_model->list_date(array('Year' => $row->Year,'Term' => $row->Term ));
                             $d = $date->row();
-                            $count = $this->history_controller->getcountday($d->sDate,$d->eDate,$day);
+                            $count = $this->history_controller->getcountday($d->sDate,$d->eDate,$day,$d->sDateExam);
                             if( $row->s_level == 1){
                                 $c_level += $count;
                                 $c_max += $count;
@@ -726,7 +729,11 @@ class report_controller extends CI_Controller {
             $n= 1;
             foreach ($sort as $row) {
                 $data['cmax'][$n] = $rows->count;
-                $data['user'][$n] = $row->Name." ".$row->SName;
+                if($row->Flag == 0){
+                    $data['user'][$n] = $row->Name." ".$row->SName." (ยกเลิก)";
+                }else{
+                    $data['user'][$n] = $row->Name." ".$row->SName;
+                }
                 $name[$n] = $row->No_account;
                 if( $st == "all" ){
                     $count = $this->history_model->get_count("count('history.No') as count","No_account = ".$row->No_account." and Status != 'เข้าสอนตรงเวลา' and Status != 'เข้าสอนสาย' ");
@@ -744,7 +751,11 @@ class report_controller extends CI_Controller {
             $user = $this->account_model->not_in_account($name);
             foreach ($user as $row ) {
                 $data['cmax'][$n] = $rows->count;
-                $data['user'][$n] = $row->Name." ".$row->SName;
+                if($row->Flag == 0){
+                    $data['user'][$n] = $row->Name." ".$row->SName." (ยกเลิก)";
+                }else{
+                    $data['user'][$n] = $row->Name." ".$row->SName;
+                }
                 $data['val'][$n] = 0;
                 $data['percent'][$n] = "0.00";
                 $n += 1;
@@ -806,8 +817,9 @@ class report_controller extends CI_Controller {
             foreach ($data['result']->result() as $key ) {
                 $bDate = new DateTime($key->Begin);
                 $eDate = new DateTime($key->End);
+                $datearray = explode("-", $eDate->format("Y-m-d"));
                 $data['Buser'][$count] = $key->Name." ".$key->SName;
-                $data['date'][$count] = $bDate->format("Y-m-d");
+                $data['date'][$count] = $bDate->format("d-m-").$datearray[0];
                 $data['timeb'][$count] = $bDate->format("H:i:s");
                 $data['timee'][$count] = $eDate->format("H:i:s");
                 $data['room'][$count] = $key->Number_Room;

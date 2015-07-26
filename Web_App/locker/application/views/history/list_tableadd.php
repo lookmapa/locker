@@ -105,7 +105,7 @@
                 echo "<td>".$count."<input type='hidden' id='edit' value='".$row->ht_no."'></td>";
                 if( $count == $arr_buser[$c_user] ){ echo "<td rowspan='".$arr_nuser[$c_user]."'>".$row->Name." ".$row->SName."</td>"; $c_user += 1; }
                 if( $count == $arr_byear[$c_year] ){ echo "<td rowspan='".$arr_nyear[$c_year]."'>".$row->Term."/".$row->Year."</td>"; $c_year += 1;}
-                if( $count == $arr_bday[$c_day] ){ echo "<td rowspan='".$arr_nday[$c_day]."'>".($datearray[0]+543)."-".$bDate->format("m-d")."</td>"; $c_day += 1;}
+                if( $count == $arr_bday[$c_day] ){ echo "<td rowspan='".$arr_nday[$c_day]."'>".$bDate->format("d-m")."-".($datearray[0]+543)."</td>"; $c_day += 1;}
                 echo "<td>".$bDate->format("H:i:s")."</td>";
                 echo "<td>".$eDate->format("H:i:s")."</td>";
                 if( $count == $arr_broom[$c_room] ){ echo "<td rowspan='".$arr_nroom[$c_room]."'>".$row->Number_Room."</td>"; $c_room += 1;}
@@ -165,6 +165,7 @@
             $.ajax({
                 url: $("input[name='url']").val()+"history_controller/edit",
                 type: "post", 
+                async: false,
                 data: {
                     user: $("#sel_user :selected").val(),
                     no: no,
@@ -172,15 +173,28 @@
                     detail: detail
                 },
                 success: function(rs){
-                    if( rs.length == 0){
-                        alert("บันทึกข้อมูลเรียบร้อย");
-                        window.location.href = $("input[name='url']").val()+"history_controller/view_add"; 
-                    }else{
-                        alert("คุณทำรายการไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
+                    var pass = 0;
+                    var fail = 0;
+                    var arr = rs.split("-");
+                    for (var i = 0; i < arr.length-1; i++) {
+                        if(arr[i] == 1){
+                            pass += 1;
+                        }else{
+                           fail += 1;
+                        }
                     }
+                    $.ajax({
+                        url: $("input[name='url']").val()+"history_controller/refresh/"+$("#sess_id").val()+"/"+pass+"/"+fail,
+                        type: "post", 
+                        async: false,
+                        success: function(rs){
+                            $("#content").html(rs); 
+                        }
+                    });
+
                 },
                 error: function(jqXHR) {
-                    alert(jqXHR.status);
+                    //alert(jqXHR.status);
                 }
             });
         });

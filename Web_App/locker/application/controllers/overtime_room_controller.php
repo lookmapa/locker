@@ -80,7 +80,7 @@ class overtime_room_controller extends CI_Controller {
             }
 
         }else{
-            echo "คุณกรอกข้อมูลซ้ำ กรุญากรอกใหม่";
+            echo "คุณกรอกข้อมูลซ้ำ กรุณากรอกใหม่";
         }
     }
 

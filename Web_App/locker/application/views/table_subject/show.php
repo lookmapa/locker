@@ -12,6 +12,7 @@
         			<h3 class="panel-title"> ตารางสอน </h3>
         		</div>
         	    <div class="panel-body">
+                    <div class="alert-warning"></div>
                     <div calss="row">
                         <div calss="col-md-6">
                             <div class="btn-group btn-group-sm" style ="margin-bottom:15px">
@@ -71,6 +72,7 @@
            $("a.btn-term-show").html($("input[name=b-term]").val()+'<span class="caret" style="margin-left:10px"></span>');
            $(".btn-year-show li").remove();
            $(".btn-term-show li").remove();
+           $(".alert-warning").html("");
                 $.ajax({
                         url: $("input[name='url']").val()+"subject_table_controller/list_year",
                         type: "post",
@@ -78,6 +80,7 @@
                         success : function(rs){
                             if(rs == "error"){
                                 //alert("อาจารย์ท่านนี้ยังไม่ได้ทำการลงตารางสอน");
+                                $(".alert-warning").html("<p class='alert alert-danger role='alert'>อาจารย์ท่านนี้ยังไม่ได้ทำการลงตารางสอน</p>");
                             }else{
                                 $("a.btn-year-show").css("pointer-events","visible");
                                 $("a.btn-term-show").css("pointer-events","visible");
@@ -109,9 +112,14 @@
         }
 
             $(".btn-user-show").on("click", "li", function() {
-                $(".btn-year-show li").remove();
-                $(".btn-term-show li").remove();
-                $("a.btn-user-show").html($(this).text()+'<span class="caret" style="margin-left:10px"></span>');
+                var html = "";
+                var val = "";
+               // $(".btn-year-show li").remove();
+              //  $(".btn-term-show li").remove();
+                $(".alert-warning").html("");
+                html = $(this).text()+'<span class="caret" style="margin-left:10px"></span>';
+                //$("a.btn-user-show").html($(this).text()+'<span class="caret" style="margin-left:10px"></span>');
+                 val = $("#value").val();
                 $("#value").val($("#no",this).val());
                 $.ajax({
                         url: $("input[name='url']").val()+"subject_table_controller/list_year",
@@ -119,8 +127,13 @@
                         data:{no_account:$("#value").val()},
                         success : function(rs){
                             if(rs == "error"){
-                                alert("อาจารย์ท่านนี้ยังไม่ได้ทำการลงตารางสอน");
+                                //alert("อาจารย์ท่านนี้ยังไม่ได้ทำการลงตารางสอน");
+                                $("#value").val(val);
+                                $(".alert-warning").html("<p class='alert alert-danger role='alert'>อาจารย์ท่านนี้ยังไม่ได้ทำการลงตารางสอน</p>");
                             }else{
+                                $(".btn-year-show li").remove();
+                                $(".btn-term-show li").remove();
+                                $("a.btn-user-show").html(html);
                                 $("a.btn-year-show").css("pointer-events","visible");
                                 $("a.btn-term-show").css("pointer-events","visible");
                                 $("a.btn-search").css("pointer-events","visible");

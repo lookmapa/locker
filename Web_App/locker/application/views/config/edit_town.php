@@ -2,10 +2,11 @@
 				<div class="col-md-10" >
 					<div class="panel panel-primary" style="margin:2% 0% 1% 0%;">
 	  					<div class="panel-heading">
-	    					<h3 class="panel-title"> กำหนดค่าเริ่มต้นตึก </h3>
+	    					<h3 class="panel-title"> กำหนดค่าเริ่มต้นอาคาร </h3>
 	  					</div>
 	  					<div class="panel-body">
                         	<div class="table table-responsive">
+                        		<div class="alert-warning"></div>
 								<table class="table table-bordered table-edit">
 									<tbody>
 									<?php
@@ -13,9 +14,9 @@
 										foreach ($result->result() as $row):
 											echo "<tr>";    
 											if( $row->Town != ""){
-		                            			echo "<td>กำหนดค่าเริ่มต้นตึก <input type='text' id='txt-town' size='8px' value=".$row->Town." style='padding:0px 7px 0px 7px;margin-left:17px'> </td>";
+		                            			echo "<td>กำหนดค่าเริ่มต้นอาคาร <input type='text' id='txt-town' size='8px' value=".$row->Town." style='padding:0px 7px 0px 7px;margin-left:17px'> </td>";
 		                            		}else{
-		                            			echo "<td>กำหนดค่าเริ่มต้นตึก <input type='text' id='txt-town' size='8px' value='' style='padding:0px 7px 0px 7px;margin-left:17px'> </td>";
+		                            			echo "<td>กำหนดค่าเริ่มต้นอาคาร <input type='text' id='txt-town' size='8px' value='' style='padding:0px 7px 0px 7px;margin-left:17px'> </td>";
 		                            		}
 		                            		echo "</tr>";
 		                        			$i += 1;		                            	
@@ -47,7 +48,7 @@
             	type: "post",
             	data: { town:$("#txt-town").val()},
             	success: function(rs){
-            		alert(rs);
+            		$(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span> "+ rs+"</p>");
             		window.location.href = $("input[name='url']").val()+"config_controller/view_edittown";
             	}
             });

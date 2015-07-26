@@ -5,6 +5,7 @@
 		</div>
 	    <div class="panel-body">
 	    	<div class="table table-responsive">
+                <div class="alert-warning"></div>
 				<table class="table table-bordered table-edit">
 						<tbody>
 							<tr>
@@ -70,7 +71,7 @@
 	    	
     	$(".btn-save").click(function() {
             if ( ($("#txt-id").val() == "") || ($("#txt-name").val() == "") || ($("#txt-hours").val() == "") ) {
-                alert("กรุณากรอกข้อมูลให้ครบ");
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูลให้ครบ</p>");
             } else {
                 if($("#chk").prop("checked")){
                     level = 1;
@@ -91,14 +92,13 @@
                     success: function(result) {
                       var str = result.split("\n");
                         if (str[0] != "คุณกรอกข้อมูลไม่ถูกต้องหรือมีในระบบอยู่แล้ว") {
-                            alert("บันทึกข้อมูลเรียบร้อยแล้ว");
                             $("#f-back").submit();
                         } else {
-                            alert(str[0]);
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>"+str[0]+"</p>");
                         }
                     },
                     error: function(jqXHR) {
-                        alert(jqXHR.status);
+                        //alert(jqXHR.status);
                     }
                 });
             }

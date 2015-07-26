@@ -15,12 +15,16 @@ class config_controller extends CI_Controller {
       $term = $this->input->post('term');
       $sdate = $this->input->post('sdate');
       $edate = $this->input->post('edate');
+      $sexamdate = $this->input->post('sexamdate');
+      $eexamdate = $this->input->post('eexamdate');
+     
+
 
       $result = $this->config_model->list_date(array('Year' => $year,'Term' => $term));
       if(count($result->result()) > 0){
         echo "ปีการศึกษา ".$term."/".$year." มีอยู่แล้ว กรุณาป้อนปีการศึกษาอื่น";
       }else{
-        $this->config_model->insert_setdate(array('Year' => $year,'Term' => $term,'sDate' => $sdate,'eDate' => $edate ));
+        $this->config_model->insert_setdate(array('Year' => $year,'Term' => $term,'sDate' => $sdate,'eDate' => $edate ,'sDateExam' => $sexamdate,'eDateExam' => $eexamdate ));
         echo "บันทึกข้อมูลเรียบร้อย";
       }
     }
@@ -33,16 +37,18 @@ class config_controller extends CI_Controller {
       $edate = $this->input->post('edate');
       $b_year = $this->input->post('b_year');
       $b_term = $this->input->post('b_term');
+      $sexamdate = $this->input->post('sexamdate');
+      $eexamdate = $this->input->post('eexamdate');
 
       if( $year == $b_year && $term == $b_term){
-        $this->config_model->update_setdate(array('No' => $no ),array('sDate' => $sdate,'eDate' => $edate ));
+        $this->config_model->update_setdate(array('No' => $no ),array('sDate' => $sdate,'eDate' => $edate ,'sDateExam' => $sexamdate,'eDateExam' => $eexamdate));
         echo "บันทึกข้อมูลเรียบร้อย";
       }else{
         $result = $this->config_model->list_date(array('Year' => $year,'Term' => $term));
         if(count($result->result()) > 0){
           echo "ปีการศึกษา ".$term."/".$year." มีอยู่แล้ว กรุณาป้อนปีการศึกษาอื่น";
         }else{
-          $this->config_model->update_setdate(array('No' => $no),array('Year' => $year,'Term' => $term,'sDate' => $sdate,'eDate' => $edate ));
+          $this->config_model->update_setdate(array('No' => $no),array('Year' => $year,'Term' => $term,'sDate' => $sdate,'eDate' => $edate ,'sDateExam' => $sexamdate,'eDateExam' => $eexamdate));
           echo "บันทึกข้อมูลเรียบร้อย";
         }
       }

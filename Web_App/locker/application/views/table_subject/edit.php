@@ -1,4 +1,4 @@
-﻿<?php $row = $result->row() ?>
+<?php $row = $result->row() ?>
 <div class="col-md-10" >
 	<div class="panel panel-primary" style="margin:2% 0% 1% 0%;">
 		<div class="panel-heading">
@@ -6,6 +6,7 @@
 		</div>
 	    <div class="panel-body">
 	    	<div class="table table-responsive">
+            <div class="alert-warning"></div>
 				<table class="table table-bordered table-edit">
 						<tbody>
 							<tr>    
@@ -14,7 +15,7 @@
                             	<div class="btn-group btn-group-sm">
 										<a class="btn dropdown-toggle btn-default btn-year" data-toggle="dropdown" href="#" ><?php echo $row->Year; ?><span class="caret" style="margin-left:10px"></span></a>
 											<ul class="dropdown-menu btn-year" style=" height: 120px;overflow: auto;">
-												<?php $today = getdate(); for($i = $today["year"]+548; $i > $today["year"]+538; $i--){
+												<?php $today = getdate(); for($i = $today["year"]+543; $i <= $today["year"]+547; $i++){
 											echo "<li style='cursor:pointer'><a>$i</a></li>";
 											} ?>
 											</ul>
@@ -79,8 +80,8 @@
                              <input type="text" id="txt-group" size="8px" value="<?php echo $row->Group; ?>" style="padding:0px 7px 0px 7px"> &nbsp;&nbsp;<label id="lb7" name="lb"></label></td>                       
                         </tr>
                         <tr>
-                            <td>  ตึก 
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <td>  อาคาร 
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                              <input type="text" id="txt-town" size="8px" value="<?php echo $row->Town; ?>" style="padding:0px 7px 0px 7px"> &nbsp;&nbsp;<label id="lb8" name="lb"></label></td>                       
                         </tr>
                         <tr>
@@ -140,7 +141,7 @@
                 success: function(rs) {
                     var str = rs.split(",");
                     for(var i=0; i<=str.length-2;i++){
-                        var str1 = str[i].split("-");
+                        var str1 = str[i].split(".");
                         no[i] = str1[0];
                         subject[i] = str1[1];
                         hr[i] = str1[2];
@@ -184,7 +185,7 @@
 	    $(".table-edit").on("focusout","#txt-timeF",function(){
             if( 
                 $('input[name=txt-timeF]').val() == 8 || $('input[name=txt-timeF]').val() == 9 || $('input[name=txt-timeF]').val() == 10 ||
-                $('input[name=txt-timeF]').val() == 13 || $('input[name=txt-timeF]').val() == 14 || $('input[name=txt-timeF]').val() == 15 ||
+                $('input[name=txt-timeF]').val() == 13 || $('input[name=txt-timeF]').val() == 14 || $('input[name=txt-timeF]').val() == 15 || $('input[name=txt-timeF]').val() == 16 ||
                 $('input[name=txt-timeF]').val() == 17 || $('input[name=txt-timeF]').val() == 18 || $('input[name=txt-timeF]').val() == 19  || $('input[name=txt-timeF]').val() == 20
             ){
                 if( $('input[name=txt-name]').val() != "" ){
@@ -213,13 +214,13 @@
         });
 
     	$(".btn-save").click(function() {
+            $("label[name='lb'],.alert-warning").html("");
             if(
                 $("#txt-timeF").val() == "" || $("#txt-timeE").val()== "" || $("#txt-name").val()== "" || 
                 $("#txt-group").val() == "" || $("#txt-town").val() == "" || $("#txt-room").val() == ""
             ){
-                alert("กรุณากรอกข้อมูลให้ครบ");
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูลให้ครบ</p>");
             } else {
-                $("label[name='lb']").html("");
                 $.ajax({
                     url: $("input[name='url']").val()+"subject_table_controller/edit", 
                     type: "post",
@@ -249,17 +250,23 @@
                     success: function(rs) {
                         if( rs == "group or subject" ){
                             $("#lb5,#lb7").html("X").css({"color": "red", "font-size": "13px"});
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>ถ้าต้องการจะลงสอนเวลานี้ กรุณากรอกวิชา กับ กลุ่มวิชา ให้ตรงกับอาจารย์อีกทัน</p>");
                         }else if(rs == "time"){
                             $("#lb4").html("X").css({"color": "red", "font-size": "13px"});
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>เวลาขณะนี้มีท่านอื่นใช้ห้องอยู่ กรุณาเปลี่ยนเป็นเวลาอื่น</p>");
                         }else if( rs == "user" ){
-                            $("#lb6").html("ผู้ใช้คนนี้ได้ทำการลงทะเบียน วัน เวลานี้แล้ว").css({"color": "red", "font-size": "13px"});
+                            $("#lb6").html("x").css({"color": "red", "font-size": "13px"});
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>ผู้ใช้คนนี้ได้ทำการลงทะเบียน วัน เวลานี้แล้ว</p>");
+                        }else if(rs == "fail"){
+                             $("#lb4,#lb9").html("X").css({"color": "red", "font-size": "13px"});
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>ช่วงเวลานี้ ห้องนี้ยังไม่ว่าง หรือ ท่านได้ทำการลงสอนวัน เวลา ขณะนี้ไปแล้ว</p>");
                         }else{
-                            alert(rs);
+                            $(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span>"+rs+"</p>");
                             window.location.href = $("input[name='url']").val()+"subject_table_controller/view_show";
                         }
                     },
                     error: function(jqXHR) {
-                        alert(jqXHR.status);
+                       // alert(jqXHR.status);
                     }
                 });
             }

@@ -23,13 +23,14 @@
         	    <div class="panel-body">
                     <div calss="row">
                         <div class="table table-responsive">
+                            <div class="alert-warning"></div>
                             <table class="table table-bordered">                               
                                 <tbody>
                                     <tr>
                                         <td> 
                                             รหัสบัตร RFID &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="txt-rfid" size="17px" value="<?php echo $rfid;?>" disabled>&nbsp;&nbsp; 
                                             <button class="btn btn-info btn-sm btn-read" ><span class="glyphicon glyphicon-time" style="margin-right:5px;width:20px"></span>อ่าน</button>
-                                            &nbsp;&nbsp; <label><font face="Arial Black" color="red" id="clock"></font></label> 
+                                            &nbsp;&nbsp;<label id="lb0" name="lb"></label>&nbsp;&nbsp; <label><font face="Arial Black" color="red" id="clock"></font></label> 
                                         </td>
                                     </tr> 
                                     <tr>
@@ -49,6 +50,7 @@
                                             สิทธิการเข้าใช้&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             <select id="cmblicense" name="license" >
                                                  <option value="ผู้ดูแลระบบ" <?php if($privileges == "ผู้ดูแลระบบ"){ echo "selected";} ?>>ผู้ดูแลระบบ</option>
+                                                 <option value="หัวหน้าสาขา/ประธานหลักสูตร" <?php if($privileges == "หัวหน้าสาขา/ประธานหลักสูตร"){ echo "selected";} ?>>หัวหน้าสาขา/ประธานหลักสูตร</option>
                                                  <option value="ผู้ใช้งานทั่วไป" <?php if($privileges == "ผู้ใช้งานทั่วไป"){ echo "selected";} ?>>ผู้ใช้งานทั่วไป</option>
                                             </select>
                                         </td>
@@ -181,7 +183,10 @@
         $(".btn-save").click(function(){
             if( $("#txt-rfid").val() == "" || $("#txt-name").val() == "" || $("#txt-sname").val() == "" || 
                 $("#txt-username").val() == "" || $("#txt-password").val() == "" ){
-                alert("กรุณากรอกข้อมูลให้ครบ");
+                //alert("กรุณากรอกข้อมูลให้ครบ");
+            $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูลให้ครบ</p>");
+            }else if($("#txt-password").val().length < 4){
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>password ต้องมากกว่า 4 ตัวอักษร</p>");
             }else{
                 var total = "";
                 var level = 0;
@@ -218,16 +223,22 @@
                     },
                     success : function(rs){
                         if( rs.length == 4){
-                            alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+                            $(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span>บันทึกข้อมูลเรียบร้อย</p>");
                             window.location.href = $("input[name='url']").val()+"account_controller/view_show";
                         }else if(parseInt(rs) == 1){
-                            $("#lb1,#lb2").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
+                            $("#lb0").html("X").css({"color": "red", "font-size": "13px"});
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>รหัสบัตรนี้มีคนใช้แล้ว กรุณาเปลี่ยนเป็นรหัสอื่น</p>");
+                           // alert("รหัสบัตรนี้มีคนใช้แล้ว กรุณาเปลี่ยนเป็นรหัสอื่น");
                         }else if(parseInt(rs) == 2){
+                            $("#lb1,#lb2").html("X").css({"color": "red", "font-size": "13px"});
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>ชื่อ - นามสกุล นี้มีผู้ใช้แล้ว กรุณาเปลี่ยนเป็นอย่างอื่น</p>");
+                           // alert("ชื่อ - นามสกุล นี้มีผู้ใช้แล้ว กรุณาเปลี่ยนเป็นอย่างอื่น");
+                        }else if(parseInt(rs) == 3){
                             $("#lb3").html("X").css({"color": "red", "font-size": "13px"});
-                            alert("กรุณาป้อนข้อมูลใหม่");
+                            $(".alert-warning").html("<p class='alert alert-danger role='alert'>username นี้มีผู้ใช้แล้ว กรุณาเปลี่ยนเป็น username อื่น</p>");
+                            //alert("username นี้มีผู้ใช้แล้ว กรุณาเปลี่ยนเป็น username อื่น");
                         }else{
-                          alert(rs);
+                          $(".alert-warning").html("<p class='alert alert-danger role='alert'>"+rs+"</p>");
                         }
                     }
                 });

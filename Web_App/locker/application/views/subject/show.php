@@ -16,7 +16,9 @@
                         </div>
                     </div>
                     <div calss="col-md-12">
+                        <div class="alert-warning"></div>
                         </br><div class="content" ></div>
+                        
                     </div>
                 </div>
             </div>
@@ -34,7 +36,6 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-
         if($("input[name=status]").val() == "back"){
             if($("input[name=b-detail]").val() == "total"){  
                 $("input[name='detail']").val("total");  
@@ -48,8 +49,9 @@
 
         $("input").keypress(function(event) {
             if (event.which == 13) {
+                $(".alert-warning").html(""); 
                 if($("#txt-serch").val() == ""){
-                    alert("กรุณากรอกข้อมุลให้ครบ");
+                    $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูล</p>"); 
                 }else{
                     $("input[name='detail']").val($("#txt-serch").val());
                     search_find($("#txt-serch").val());
@@ -59,8 +61,9 @@
 
         
         $(".btn-search").click(function(){
+            $(".alert-warning").html(""); 
             if($("#txt-serch").val() == ""){
-                alert("กรุณากรอกข้อมุลให้ครบ");
+                $(".alert-warning").html("<p class='alert alert-danger role='alert'>กรุณากรอกข้อมูล</p>"); 
             }else{
                 $("input[name='detail']").val($("#txt-serch").val());
                 search_find($("#txt-serch").val());
@@ -68,6 +71,7 @@
         });
 
         $(".btn-total").click(function(){
+            $(".alert-warning").html(""); 
             $("#txt-serch").val("");
             $("input[name='detail']").val("total");
             search_all();

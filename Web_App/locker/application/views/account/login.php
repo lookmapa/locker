@@ -6,7 +6,8 @@
             <title>Web Locker</title>
             <link type="text/css" rel="stylesheet" href="<?php echo base_url();?>/css/bootstrap.css">
             <script type="text/javascript" src='<?php echo base_url();?>/js/jquery.js'></script>
-            <script type="text/javascript" src='<?php echo base_url();?>/js/bootstrap.min.js'></script>        
+            <script type="text/javascript" src='<?php echo base_url();?>/js/bootstrap.min.js'></script>  
+            <script type="text/javascript" src='<?php echo base_url();?>/js/jquery-base64.js'></script>      
     </header>
     <body background='<?php echo base_url();?>/images/bg.jpg'></br></br>
         <div class="container-fluid">
@@ -14,7 +15,7 @@
                 <div class="col-md-12" style="padding: 0% 5% 0% 5%;margin: 2% 0% 2% 0%;">
                     <div class="col-md-4" ></div>
                     <div class="col-md-4" >
-                        <form  method="post" action="<?php echo base_url();?>account_controller/login" id="f_login">
+                        
                             <div class="panel panel-primary" style="margin:10% 1% 10% 1%;">
                                 <div class="panel-heading">
                                     <h3 class="panel-title"> เข้าสู่ระบบ </h3>
@@ -26,24 +27,24 @@
                                                 <span class="glyphicon glyphicon-user" style="margin-right:15px"></span>
                                             </td>
                                             <td width="95%" >
-                                                <input type="text" class="inputs" name="txt-username" placeholder="Username" value="<?php echo $t_username;?>" ><br/>
+                                                <input type="text" class="inputs" id="txt-username" placeholder="Username" value="<?php echo $t_username;?>" ><br/>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td></td>
-                                            <td><?php if($st_username != ""){echo "<p class='alert alert-danger' role='alert'>".$st_username."</p>";}?></td>
+                                            <td><div class = "alert-username"></div></td>
                                         </tr>
                                         <tr>
                                             <td >
                                                 <span class="glyphicon glyphicon-lock" style="margin-right:15px"></span>
                                             </td>
                                             <td>
-                                                <input type="password" class="inputs" name="txt-password" placeholder="Password" value="<?php echo $t_password;?>" ><br/>
+                                                <input type="password" class="inputs" id="txt-password" placeholder="Password" value="<?php echo $t_password;?>" ><br/>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td></td>
-                                            <td><?php if($st_password != ""){echo "<p class='alert alert-danger' role='alert'>".$st_password."</p>";}?></td>
+                                            <td><div class = "alert-password"></div></td>
                                         </tr>
                                         <tr>
                                             </br><td></td>
@@ -58,7 +59,7 @@
                                     </br>                               
                                 </div>
                             </div>
-                        </form>
+                        <!-- </form> -->
                     </div>
                     <div class="col-md-4"></div>
                 </div>
@@ -69,24 +70,65 @@
 <script type="text/javascript">
     $(document).ready(function(){
         $(".btn-login").click(function(){
-            if( $("input[name='txt-username']").val() == "" ||  $("input[name='txt-password']").val() == ""){
-                alert("กรุณากรอกข้อมูลให้ครบ");
+            $(".alert-username,.alert-password").html("");
+            if( $("#txt-username").val() == "" ||  $("#txt-password").val() == ""){
+               $(".alert-password").html("<p class='alert alert-danger role='alert'>กรุณากรอกให้ครบ</p>"); 
             }else{
-                $("#f_login").submit();
+               // $("#f_login").submit();
+                login();   
             }
         });
 
          $("input").keypress(function(event) {
             if (event.which == 13) {
-                if( $("input[name='txt-username']").val() == "" ||  $("input[name='txt-password']").val() == ""){
-                    alert("กรุณากรอกข้อมูลให้ครบ");
+                $(".alert-username,.alert-password").html("");
+                if( $("#txt-username").val() == "" ||  $("#txt-password").val() == ""){
+                    $(".alert-password").html("<p class='alert alert-danger role='alert'>กรุณากรอกให้ครบ</p>"); 
                 }else{
-                    $("#f_login").submit();
+                    //$("#f_login").submit();
+                    login();
                 }
             }
         });
 
     });
+
+    function login(){
+        $.ajax({
+                    url : $("input[name='url']").val()+"account_controller/login",
+                    type : "post",
+                    data : { 
+                        username : $("#txt-username").val(),
+                        password : $.base64('encode', $("#txt-password").val())
+                    },
+                    success : function(rs){
+                        if(rs == "success"){
+                            window.location.href = $("input[name='url']").val()+"history_controller/view_add";
+                        }else if( rs == "failUsername"){
+                            //$(".alert-username").html("กรุณากรอก username ให้ถูกต้อง");
+                            $(".alert-username").html("<p class='alert alert-danger role='alert'>กรุณากรอก username ให้ถูกต้อง</p>");
+                        }else{
+                            $(".alert-password").html("<p class='alert alert-danger role='alert'>กรุณากรอก password ให้ถูกต้อง</p>");
+                        }
+                         /*if( rs.length == 4){
+                            alert("บันทึกข้อมูลเรียบร้อย");
+                            window.location.href = $("input[name='url']").val()+"account_controller/view_show";
+                        }else if(parseInt(rs) == 1){
+                            $("#lb1").html("X").css({"color": "red", "font-size": "13px"});
+                            alert("รหัสบัตรนี้มีคนใช้แล้ว กรุณาเปลี่ยนเป็นรหัสอื่น");
+                        }else if(parseInt(rs) == 2){
+                            $("#lb4").html("X").css({"color": "red", "font-size": "13px"});
+                            alert("username นี้มีผู้ใช้แล้ว กรุณาเปลี่ยนเป็น username อื่น");
+                        }else if(parseInt(rs) == 12){
+                            $("#lb1,#lb4").html("X").css({"color": "red", "font-size": "13px"});
+                            alert("รหัวบัตร และ username นี้มีคนใช้แล้ว กรุณาเปลี่ยนเป็นใหม่");
+                        }*/
+                    }
+                });
+    }
+
+
+
 </script>
 <style>
 .inputs {

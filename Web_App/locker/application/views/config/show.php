@@ -8,6 +8,7 @@
                     <button class="btn btn-success btn-sm btn-add" ><span class="glyphicon glyphicon-plus" style="margin-right:5px;width:20px"></span>เพิ่ม</button></br></br>
                     <div calss="row">
                         <div class="table table-responsive">
+                        <div class="alert-warning"></div>
                             <table class="table  table-bordered table-striped" style="size:2px;">
                                 <thead>
                                     <tr class="info" align="center">
@@ -15,6 +16,8 @@
                                         <td> ปีการศึกษา </td>
                                         <td> เริ่มวันที่ </td>
                                         <td> จบวันที่ </td>
+                                        <td> เริ่มวันที่สอบ </td>
+                                        <td> จบวันที่สอบ </td>
                                         <td> เครื่องมือ </td>
                                     </tr>
                                 </thead>
@@ -23,14 +26,25 @@
                                         $i = 1;
                                         if( count($result->result()) > 0){
                                             foreach ($result->result() as $row ): 
+                                                $bDate = new DateTime($row->sDate);
+                                                $eDate = new DateTime($row->eDate);
+                                                $sDateExam = new DateTime($row->sDateExam);
+                                                $eDateExam = new DateTime($row->eDateExam);
+                                                $bDatearray = explode("-", $bDate->format("Y-m-d"));
+                                                $eDatearray = explode("-", $eDate->format("Y-m-d"));
+                                                $bExDatearray = explode("-", $sDateExam->format("Y-m-d"));
+                                                $eExDatearray = explode("-", $eDateExam->format("Y-m-d"));
+
                                                 echo "<tr>";
                                                 echo "<td>".$i."</td>";
                                                 echo "<td>".$row->Term."/".$row->Year."</td>";
-                                                echo "<td>".$row->sDate."</td>";
-                                                echo "<td>".$row->eDate."</td>";
+                                                echo "<td>".$bDate->format("d-m-").($bDatearray[0]+543)."</td>";
+                                                echo "<td>".$eDate->format("d-m-").($eDatearray[0]+543)."</td>";
+                                                echo "<td>".$sDateExam->format("d-m-").($bExDatearray[0]+543)."</td>";
+                                                echo "<td>".$eDateExam->format("d-m-").($eExDatearray[0]+543)."</td>";
                                                 echo "<td align='center'>";
-                                                echo "<a id='edit' name=".base64_encode($row->No)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                                echo "<a id='del' name=".$row->No."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash'></span></a>";
+                                                echo "<a id='edit' name=".base64_encode($row->No)."><span style='margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข' ></span></a>";
+                                                echo "<a id='del' name=".$row->No."><span style='margin-left:5px;margin-right:5px;cursor:pointer;' class='glyphicon glyphicon-trash' data-toggle='del' title='ลบ'></span></a>";
                                                 echo "</td>";
                                                 echo "</tr>";
                                                 $i += 1;
@@ -73,6 +87,10 @@
     $(document).ready(function(){
         var number = 0;
 
+        $('[data-toggle="detail"]').tooltip();
+        $('[data-toggle="edit"]').tooltip(); 
+        $('[data-toggle="del"]').tooltip();
+
         $("a#edit").click(function(){
             number = $(this).attr('name');
             location.href = ($("input[name='url']").val()+"config_controller/view_editdate/?id="+number);
@@ -91,6 +109,7 @@
             $.ajax({
                 url : $("input[name='url']").val()+"config_controller/delete/"+number,
                 success : function(rs){
+                    $(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span> "+ rs+"</p>");
                     window.location.href = $("input[name='url']").val()+"config_controller/view_show"; 
 
                 }        

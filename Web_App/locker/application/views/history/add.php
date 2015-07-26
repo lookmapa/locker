@@ -17,6 +17,7 @@
 								    </select>
 									</br></br>
 								<?php } ?>
+								<div class="alert-success"></div></br>
 								<div id="content"></div></br>
 	  						</div>
 	  						<input type="hidden" name="url" value="<?php echo base_url();?>">
@@ -57,12 +58,13 @@
 				$("#content").html(rs); 
 			},
 			error: function(jqXHR) {
-				alert(jqXHR.status);
+				//alert(jqXHR.status);
 			}
 		});
 
 		$("#sel_user").change(function(){
 			$("#sess_id").val($("#sel_user :selected").val());
+			$(".alert-success").html("");
 			$.ajax({
 				url: $("input[name='url']").val()+"history_controller/list_addhistory?user="+$("#sel_user :selected").val(),
 				type: "post",
@@ -78,7 +80,7 @@
 					$("#content").html(rs); 
 				},
 				error: function(jqXHR) {
-					alert(jqXHR.status);
+					//alert(jqXHR.status);
 				}
 			});
 		});

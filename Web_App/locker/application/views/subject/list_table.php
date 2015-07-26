@@ -21,8 +21,8 @@
                                             echo "<td>".$row->Name."</td>";
                                             echo "<td>".$row->Hours."</td>";
                                             echo "<td><center>";
-                                            echo "<a id='edit' name=".base64_encode($row->No)."><span style='margin-right:10px;cursor:pointer;' class='glyphicon glyphicon-pencil'></span></a>";
-                                            echo "<a id='del' name=".$row->No."><span style='margin-left:10px;cursor:pointer;' class='glyphicon glyphicon-trash'></span></a>";
+                                            echo "<a id='edit' name=".base64_encode($row->No)."><span style='margin-right:10px;cursor:pointer;' class='glyphicon glyphicon-pencil' data-toggle='edit' title='แก้ไข'></span></a>";
+                                            echo "<a id='del' name=".$row->No."><span style='margin-left:10px;cursor:pointer;' class='glyphicon glyphicon-trash' data-toggle='del' title='ลบ'></span></a>";
                                             echo "</center></td>";
                                             echo "</tr>";
                                             $count += 1;
@@ -52,12 +52,17 @@
                                 </div>
                             </div>
         		      </div>
-
+                      <form id="f_del" method="post" action="<?php echo base_url();?>subject_controller/delete">
+                          <input type="hidden" name="no" id="no" value="">
+                      </form>
 
     <script type="text/javascript" >
         $(document).ready(function(){
             var del = 0;
             var edit = 0;
+
+            $('[data-toggle="edit"]').tooltip(); 
+            $('[data-toggle="del"]').tooltip();
 
             $("a#del").click(function(){
                 $('#dl_Modal').modal('show');
@@ -70,7 +75,9 @@
             });
 
             $(".btn-yes").click(function(){
-                $.ajax({
+                $("#no").val(del);
+                $("#f_del").submit();
+                /*$.ajax({
                     url: $("input[name='url']").val()+"subject_controller/delete",
                     type: "post",
                     data: {no:del},
@@ -83,7 +90,7 @@
                             }  
                         });
                     }
-                });
+                });*/
             });
         });
     </script>

@@ -27,7 +27,7 @@ class History_model extends CI_Model {
     }
 
     function sort($where){
-        $this->db->select('No_account,Name,SName');
+        $this->db->select('No_account,Name,SName,Flag');
         $this->db->where($where);
         $this->db->join('account', 'account.No = No_account');
         $this->db->group_by('No_account');

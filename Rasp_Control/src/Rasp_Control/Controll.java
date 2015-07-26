@@ -10,7 +10,8 @@ import com.pi4j.io.gpio.PinState;
 public  class Controll  implements Runnable {
 
 	private String driver="com.mysql.jdbc.Driver";
-	private String url="jdbc:mysql://192.168.1.199/locker?characterEncoding=UTF-8";
+	//private String url="jdbc:mysql://192.168.1.199/locker?characterEncoding=UTF-8";
+	private String url="jdbc:mysql://172.17.131.250/locker?characterEncoding=UTF-8";
 	private String id="raspberry";
 	private String pass="1234";
 	private ResultSet rs = null;
@@ -73,7 +74,7 @@ public  class Controll  implements Runnable {
 							
 							year = rs.getString("Year");
 						    term = rs.getString("Term");
-							
+							System.out.println("ปี "+year); /////////////////////////////////////
 							if( Integer.parseInt(time.substring(0,2)) < 12 && Integer.parseInt(time.substring(0,2)) >= 7){
 								sqltime = "12:00:00";
 							}else if( Integer.parseInt(time.substring(0,2)) < 17 ){
@@ -149,6 +150,7 @@ public  class Controll  implements Runnable {
 							
 							/*------------------------------- ตรวจสอบว่าเวลานี้มีตารางสอนหรือไม่ --------------------------------------------------------------------*/
 								sql = "No_account = "+no+" and Year = "+year+" and Term = "+term+" and Day = '"+day+"' and Time_End > '"+Double.parseDouble(clock[0]+"."+clock[1])+"' group by subject_timetable.No order by Time_Begin asc limit 0,1";
+							System.out.println(sql); /////////////////////////////////////
 								rs = db.getData_Join("Time_Begin,number_locker.No as n_no,subject_timetable.No as st_no","subject_timetable" , "number_locker on Number_Room = Room",sql );
 								rs.next();
 								if( rs.getRow() > 0 ){
@@ -274,10 +276,10 @@ public  class Controll  implements Runnable {
 										if(ch_read[i-1] == '0'){// หยิบกุญแจ
 											if(rs.getString("max") == null){ // เริ่มบันทึก
 												if( Double.parseDouble(st[3]) >= Double.parseDouble(clock[0]+"."+clock[1]) ){ // เข้าสอนตรงเวลา
-													sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s'",null,no,st[1],st[2],0,year,term,date+" "+time,null,"เข้าสอนตรงเวลา"); // แก้เป็น date time ***********************************************
+													sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s','%s'",null,no,st[1],st[2],0,year,term,date+" "+time,null,"เข้าสอนตรงเวลา",null); // แก้เป็น date time ***********************************************
 													db.insertData("history",sql);
 												}else{ // เข้าสอนสาย
-													sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s'",null,no,st[1],st[2],0,year,term,date+" "+time,null,"เข้าสอนสาย"); // แก้เป็น date time ***********************************************
+													sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s','%s'",null,no,st[1],st[2],0,year,term,date+" "+time,null,"เข้าสอนสาย",null); // แก้เป็น date time ***********************************************
 													db.insertData("history",sql);
 												}
 												System.out.println("เริ่มบันทึกใหม่");
@@ -299,7 +301,7 @@ public  class Controll  implements Runnable {
 										rs.next();
 										if(ch_read[i-1] == '0'){// หยิบกุญแจ
 											if(rs.getString("max") == null){ // เริ่มบันทึก
-												sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s'",null,no,"0","0",st[1],year,term,date+" "+time,null,"แจ้ง"); // แก้เป็น date time ***********************************************
+												sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s','%s'",null,no,"0","0",st[1],year,term,date+" "+time,null,"แจ้ง",null); // แก้เป็น date time ***********************************************
 												db.insertData("history",sql);
 												System.out.println("เริ่มบันทึกใหม่");
 											}else{
@@ -325,7 +327,7 @@ public  class Controll  implements Runnable {
 											}
 											
 											if( num == 0){ // ห้องทั้ง2เปิดอยุ่รึป่าว
-												sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s'",null,no,i,"0","0",year,term,date+" "+time,null,"empty"); // แก้เป็น date time ***********************************************
+												sql = String.format("%s,%s,%s,%s,%s,%s,%s,'%s',%s,'%s','%s'",null,no,i,"0","0",year,term,date+" "+time,null,"empty",null); // แก้เป็น date time ***********************************************
 												db.insertData("history",sql);
 												System.out.println("เริ่มบันทึกใหม่2");
 											}else{

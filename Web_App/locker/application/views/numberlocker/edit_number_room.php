@@ -6,6 +6,7 @@
 	  					</div>
 	  					<div class="panel-body">
                         	<div class="table table-responsive">
+                        	<div class="alert-warning"></div>
 								<table class="table table-bordered table-edit">
 									<tbody>
 									<?php
@@ -65,7 +66,7 @@
             	type: "post",
             	data: { data:str},
             	success: function(rs){
-            		alert(rs);
+            		$(".alert-warning").html("<p class='alert alert-success role='alert'><span class='glyphicon glyphicon-ok'></span> "+ rs+"</p>");
             		window.location.href = $("input[name='url']").val()+"numberlocker_controller/view_editnumber";
             	}
             });

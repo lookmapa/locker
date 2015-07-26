@@ -20,7 +20,7 @@
 	  								</tr>
 	  								<tr>
 	  									<td>
-	  										<a href="<?php echo base_url();?>config_controller/view_edittown"> กำหนดค่าเริ่มต้นตึก</a>
+	  										<a href="<?php echo base_url();?>config_controller/view_edittown"> กำหนดค่าเริ่มต้นอาคาร</a>
 	  									</td>
 	  								</tr>
 	  								<tr>
