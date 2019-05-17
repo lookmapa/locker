@@ -1,9 +1,5 @@
 select * from A
-<<<<<<< HEAD
-select * from B
-select * from C
-=======
 select * from A
 select * from A
 select * from A
->>>>>>> ba9eddd2290ace8677f552abcbf92f9b642e3b2c
+
